@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getZoneById, hierarchyData } from '@/lib/data/lots-data';
+import { getZoneBySlug, getHierarchyData } from '@/lib/data/lots-repository';
 import { ZoneView } from '@/components/views/ZoneView';
 
 interface ZonePageProps {
@@ -8,7 +8,7 @@ interface ZonePageProps {
 
 export default async function ZonePage({ params }: ZonePageProps) {
   const { zoneId } = await params;
-  const zone = getZoneById(zoneId);
+  const zone = await getZoneBySlug(zoneId);
 
   if (!zone) {
     notFound();
@@ -18,6 +18,7 @@ export default async function ZonePage({ params }: ZonePageProps) {
 }
 
 export async function generateStaticParams() {
+  const hierarchyData = await getHierarchyData();
   return hierarchyData.zones.map((zone) => ({
     zoneId: zone.slug,
   }));
