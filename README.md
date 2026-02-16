@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Navegador de Lotes Inmobiliarios Interactivos
 
-## Getting Started
+Aplicación Next.js 14+ para visualización y navegación interactiva de lotes inmobiliarios organizados jerárquicamente en 3 niveles:
 
-First, run the development server:
+- **Mapa Principal** → 3 Zonas
+- **Vista de Zona** → 4 Manzanas por zona
+- **Vista de Manzana** → 20 Lotes por manzana
+
+**Total: 240 lotes navegables** (3 zonas × 4 manzanas × 20 lotes)
+
+## 🚀 Características
+
+- ✅ **SVGs Interactivos**: Clickeables con hover effects y labels dinámicos
+- ✅ **Navegación Jerárquica**: Sistema de navegación en 3 niveles
+- ✅ **Estados de Lotes**: Disponible, Reservado, Vendido, No Disponible
+- ✅ **Responsive**: Funciona en desktop y móvil
+- ✅ **TypeScript**: Type safety completo
+- ✅ **Static Generation**: Pre-renderizado de todas las rutas
+- ✅ **Panel de Detalle**: Información de lotes con superficie, precio y características
+
+## 📋 Stack Tecnológico
+
+- **Framework**: Next.js 14+ (App Router)
+- **Lenguaje**: TypeScript 5+
+- **Estilos**: Tailwind CSS 3+
+- **Componentes**: React 18+ (Server + Client Components)
+
+## 🚦 Comandos
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Desarrollo
+npm run dev          # http://localhost:3000
+
+# Build
+npm run build        # Construcción optimizada
+npm run start        # Servidor de producción
+
+# Verificación
+npm run lint         # ESLint
+npx tsc --noEmit     # Verificar TypeScript
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🗺️ Rutas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `/` → Mapa principal con 3 zonas
+- `/zona/zona-1` → Vista de Zona Norte (4 manzanas)
+- `/zona/zona-2` → Vista de Zona Centro (4 manzanas)
+- `/zona/zona-3` → Vista de Zona Sur (4 manzanas)
+- `/zona/{zoneId}/manzana/{blockId}` → Vista de manzana con 20 lotes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📊 Total de Elementos
 
-## Learn More
+- **3 Zonas** (Norte, Centro, Sur)
+- **12 Manzanas** (4 por zona)
+- **240 Lotes** (20 por manzana)
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <style>
+      .zone-boundary {
+        fill: rgba(100, 150, 200, 0.1);
+        stroke: #4A90E2;
+        stroke-width: 4;
+        stroke-linejoin: round;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .zone-boundary:hover {
+        fill: rgba(100, 150, 200, 0.3);
+        stroke: #2E5C8A;
+        stroke-width: 6;
+      }
+      .background {
+        fill: #f8f9fa;
+      }
+      .grid-line {
+        stroke: #e0e0e0;
+        stroke-width: 1;
+        opacity: 0.5;
+      }
+      .main-road {
+        fill: #c0c0c0;
+        stroke: #808080;
+        stroke-width: 2;
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect class="background" width="1920" height="1080"/>
+
+  <!-- Grid (optional decoration) -->
+  <g id="grid">
+    <line class="grid-line" x1="640" y1="0" x2="640" y2="1080"/>
+    <line class="grid-line" x1="1280" y1="0" x2="1280" y2="1080"/>
+    <line class="grid-line" x1="0" y1="360" x2="1920" y2="360"/>
+    <line class="grid-line" x1="0" y1="720" x2="1920" y2="720"/>
+  </g>
+
+  <!-- Main roads -->
+  <g id="roads">
+    <rect class="main-road" x="0" y="520" width="1920" height="40"/>
+    <rect class="main-road" x="940" y="0" width="40" height="1080"/>
+  </g>
+
+  <!-- Zona 1 - Norte Oeste -->
+  <path id="zona-1" class="zone-boundary"
+        d="M 120,120 L 880,120 L 880,500 L 120,500 Z"/>
+
+  <!-- Zona 2 - Norte Este -->
+  <path id="zona-2" class="zone-boundary"
+        d="M 1040,120 L 1800,120 L 1800,500 L 1040,500 Z"/>
+
+  <!-- Zona 3 - Sur (spanning full width) -->
+  <path id="zona-3" class="zone-boundary"
+        d="M 120,600 L 1800,600 L 1800,960 L 120,960 Z"/>
+</svg>

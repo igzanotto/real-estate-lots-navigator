@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <style>
+      .block-boundary {
+        fill: rgba(76, 175, 80, 0.1);
+        stroke: #4CAF50;
+        stroke-width: 3;
+        stroke-linejoin: round;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .block-boundary:hover {
+        fill: rgba(76, 175, 80, 0.3);
+        stroke: #388E3C;
+        stroke-width: 5;
+      }
+      .background {
+        fill: #fafafa;
+      }
+      .street {
+        fill: #d0d0d0;
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect class="background" width="1920" height="1080"/>
+
+  <!-- Streets -->
+  <rect class="street" x="0" y="520" width="1920" height="40"/>
+  <rect class="street" x="940" y="0" width="40" height="1080"/>
+
+  <!-- Manzana 1 - Top Left -->
+  <rect id="manzana-1" class="block-boundary"
+        x="200" y="150" width="680" height="330" rx="10"/>
+
+  <!-- Manzana 2 - Top Right -->
+  <rect id="manzana-2" class="block-boundary"
+        x="1040" y="150" width="680" height="330" rx="10"/>
+
+  <!-- Manzana 3 - Bottom Left -->
+  <rect id="manzana-3" class="block-boundary"
+        x="200" y="600" width="680" height="330" rx="10"/>
+
+  <!-- Manzana 4 - Bottom Right -->
+  <rect id="manzana-4" class="block-boundary"
+        x="1040" y="600" width="680" height="330" rx="10"/>
+</svg>
