@@ -1,5 +1,9 @@
+import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { EntityStatus } from '../../types/hierarchy.types';
+
+// Load environment variables from .env.local
+config({ path: '.env.local' });
 
 // Initialize Supabase client with service role key for admin operations
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

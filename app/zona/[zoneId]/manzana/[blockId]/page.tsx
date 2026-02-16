@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getZoneBySlug, getBlockBySlug, getHierarchyData } from '@/lib/data/lots-repository';
+import { getZoneBySlug, getBlockBySlug } from '@/lib/data/lots-repository';
+import { getHierarchyDataAdmin } from '@/lib/data/lots-repository-admin';
 import { BlockView } from '@/components/views/BlockView';
 
 interface BlockPageProps {
@@ -19,7 +20,7 @@ export default async function BlockPage({ params }: BlockPageProps) {
 }
 
 export async function generateStaticParams() {
-  const hierarchyData = await getHierarchyData();
+  const hierarchyData = await getHierarchyDataAdmin();
   const params: { zoneId: string; blockId: string }[] = [];
 
   hierarchyData.zones.forEach((zone) => {
