@@ -1,33 +1,33 @@
 import { HierarchyData, Zone, Block, Lot, EntityStatus } from '@/types/hierarchy.types';
 
 /**
- * Generate 20 lots for a specific block
+ * Generate 8 lots for a specific block (4 rows × 2 columns)
  */
-function generateLots(zoneNum: number, blockNum: number): Lot[] {
+function generateLots(zoneLetter: string, blockNum: number): Lot[] {
   const lots: Lot[] = [];
-  const zoneId = `zona-${zoneNum}`;
-  const blockId = `zona-${zoneNum}-manzana-${blockNum}`;
+  const zoneId = `zona-${zoneLetter.toLowerCase()}`;
+  const blockId = `zona-${zoneLetter.toLowerCase()}-manzana-${blockNum}`;
 
-  for (let i = 1; i <= 20; i++) {
+  for (let i = 1; i <= 8; i++) {
     const lotNum = i.toString().padStart(2, '0');
     const lotId = `lote-${lotNum}`;
 
     // Simulate different statuses
     let status: EntityStatus = 'available';
-    if (i % 7 === 0) status = 'sold';
-    else if (i % 5 === 0) status = 'reserved';
-    else if (i % 11 === 0) status = 'not_available';
+    if (i % 5 === 0) status = 'sold';
+    else if (i % 3 === 0) status = 'reserved';
+    else if (i % 7 === 0) status = 'not_available';
 
-    // Corner lots: first and last in each row (simplified logic)
-    const isCorner = i === 1 || i === 20 || i === 10 || i === 11;
+    // Corner lots: corners of 4x2 grid (positions 1, 2, 7, 8)
+    const isCorner = i === 1 || i === 2 || i === 7 || i === 8;
 
-    // Base area: 250-400 m² with variation
-    const baseArea = 300;
-    const variation = (i % 10) * 10;
+    // Base area: 250-350 m² with variation
+    const baseArea = 280;
+    const variation = (i % 8) * 10;
     const area = baseArea + variation;
 
-    // Price: $50-80 per m² depending on status and corner
-    const pricePerSqm = isCorner ? 80 : 60;
+    // Price: $60-90 per m² depending on status and corner
+    const pricePerSqm = isCorner ? 90 : 70;
     const price = status === 'sold' ? undefined : area * pricePerSqm;
 
     lots.push({
@@ -50,13 +50,13 @@ function generateLots(zoneNum: number, blockNum: number): Lot[] {
 /**
  * Generate all blocks for a zone
  */
-function generateBlocks(zoneNum: number): Block[] {
+function generateBlocks(zoneLetter: string, blockCount: number): Block[] {
   const blocks: Block[] = [];
-  const zoneId = `zona-${zoneNum}`;
+  const zoneId = `zona-${zoneLetter.toLowerCase()}`;
 
-  for (let i = 1; i <= 4; i++) {
-    const blockId = `zona-${zoneNum}-manzana-${i}`;
-    const lots = generateLots(zoneNum, i);
+  for (let i = 1; i <= blockCount; i++) {
+    const blockId = `zona-${zoneLetter.toLowerCase()}-manzana-${i}`;
+    const lots = generateLots(zoneLetter, i);
 
     // Determine block status based on lots
     const soldCount = lots.filter(l => l.status === 'sold').length;
@@ -83,12 +83,15 @@ function generateBlocks(zoneNum: number): Block[] {
  * Generate all zones
  */
 function generateZones(): Zone[] {
-  const zoneNames = ['Zona Norte', 'Zona Centro', 'Zona Sur'];
+  const zoneConfig = [
+    { letter: 'A', name: 'Zona A', blockCount: 4 },
+    { letter: 'B', name: 'Zona B', blockCount: 4 },
+    { letter: 'C', name: 'Zona C', blockCount: 6 },
+  ];
 
-  return zoneNames.map((name, index) => {
-    const zoneNum = index + 1;
-    const zoneId = `zona-${zoneNum}`;
-    const blocks = generateBlocks(zoneNum);
+  return zoneConfig.map(({ letter, name, blockCount }) => {
+    const zoneId = `zona-${letter.toLowerCase()}`;
+    const blocks = generateBlocks(letter, blockCount);
 
     // Determine zone status based on blocks
     const soldCount = blocks.filter(b => b.status === 'sold').length;
@@ -100,7 +103,7 @@ function generateZones(): Zone[] {
       id: zoneId,
       slug: zoneId,
       name,
-      label: `Zona ${zoneNum}`,
+      label: name,
       status,
       svgPath: `/svgs/zonas/${zoneId}.svg`,
       blocks,
