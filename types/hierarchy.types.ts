@@ -14,6 +14,13 @@ export interface Lot extends BaseEntity {
   area: number;
   price?: number;
   isCorner: boolean;
+  // Detailed information
+  description?: string;
+  frontMeters?: number;
+  depthMeters?: number;
+  orientation?: string;
+  features?: string[];
+  imageUrl?: string;
 }
 
 export interface Block extends BaseEntity {

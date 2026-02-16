@@ -46,6 +46,40 @@ function generateLotsData(zoneLetter: string, blockNum: number, zoneDbId: string
     const pricePerSqm = isCorner ? 90 : 70;
     const price = status === 'sold' ? null : area * pricePerSqm;
 
+    // Dimensions
+    const frontMeters = isCorner ? 12 + (i % 3) : 10 + (i % 3);
+    const depthMeters = Math.round(area / frontMeters);
+
+    // Orientation (varies by position)
+    const orientations = ['Norte', 'Sur', 'Este', 'Oeste', 'Noreste', 'Noroeste'];
+    const orientation = orientations[i % orientations.length];
+
+    // Features (more for available lots)
+    const baseFeatures = [
+      'Agua potable',
+      'Electricidad',
+      'Alumbrado público',
+      'Acceso pavimentado',
+    ];
+    const premiumFeatures = [
+      'Gas natural',
+      'Cloacas',
+      'Fibra óptica',
+      'Seguridad 24hs',
+    ];
+    const features = isCorner || status === 'available'
+      ? [...baseFeatures, ...premiumFeatures.slice(0, 2)]
+      : baseFeatures;
+
+    // Description
+    const descriptions = [
+      `Excelente lote ubicado en ${zoneLetter.toUpperCase()}, ideal para construcción de vivienda familiar.`,
+      `Terreno con excelente ubicación y orientación ${orientation.toLowerCase()}.`,
+      `Lote ${isCorner ? 'de esquina ' : ''}con todos los servicios disponibles.`,
+      `Propiedad en zona residencial de alto desarrollo, perfecta para inversión.`,
+    ];
+    const description = descriptions[i % descriptions.length];
+
     lots.push({
       zone_id: zoneDbId,
       block_id: blockDbId,
@@ -56,6 +90,11 @@ function generateLotsData(zoneLetter: string, blockNum: number, zoneDbId: string
       area,
       price,
       is_corner: isCorner,
+      description,
+      front_meters: frontMeters,
+      depth_meters: depthMeters,
+      orientation,
+      features: JSON.stringify(features),
     });
   }
 

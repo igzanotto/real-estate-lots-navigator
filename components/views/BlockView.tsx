@@ -19,14 +19,19 @@ export function BlockView({ zone, block }: BlockViewProps) {
     ? block.lots.find((lot) => lot.id === selectedLotId)
     : null;
 
-  const entityConfigs = block.lots.map((lot) => ({
-    id: lot.id,
-    label: lot.label,
-    status: lot.status,
-    onClick: () => {
-      setSelectedLotId(lot.id);
-    },
-  }));
+  const entityConfigs = block.lots.map((lot) => {
+    // Extract just the lot ID from the full slug (e.g., "zona-a-manzana-1-lote-01" -> "lote-01")
+    const lotIdInSvg = lot.slug.split('-').slice(-2).join('-');
+
+    return {
+      id: lotIdInSvg,
+      label: lot.label,
+      status: lot.status,
+      onClick: () => {
+        setSelectedLotId(lot.id);
+      },
+    };
+  });
 
   const breadcrumbItems = [
     { label: 'Mapa Principal', href: '/' },
@@ -102,12 +107,42 @@ export function BlockView({ zone, block }: BlockViewProps) {
                 <p className="text-lg font-semibold">{selectedLot.area} m²</p>
               </div>
 
+              {(selectedLot.frontMeters || selectedLot.depthMeters) && (
+                <div>
+                  <span className="text-sm text-gray-500">Dimensiones</span>
+                  <p className="text-sm text-gray-900">
+                    {selectedLot.frontMeters && `Frente: ${selectedLot.frontMeters}m`}
+                    {selectedLot.frontMeters && selectedLot.depthMeters && ' × '}
+                    {selectedLot.depthMeters && `Fondo: ${selectedLot.depthMeters}m`}
+                  </p>
+                </div>
+              )}
+
+              {selectedLot.orientation && (
+                <div>
+                  <span className="text-sm text-gray-500">Orientación</span>
+                  <p className="text-sm text-gray-900">{selectedLot.orientation}</p>
+                </div>
+              )}
+
               {selectedLot.price && (
                 <div>
                   <span className="text-sm text-gray-500">Precio</span>
                   <p className="text-2xl font-bold text-green-600">
                     ${selectedLot.price.toLocaleString()}
                   </p>
+                  {selectedLot.area && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      ${Math.round(selectedLot.price / selectedLot.area)}/m²
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {selectedLot.description && (
+                <div>
+                  <span className="text-sm text-gray-500">Descripción</span>
+                  <p className="text-sm text-gray-700 mt-1">{selectedLot.description}</p>
                 </div>
               )}
 
@@ -120,10 +155,19 @@ export function BlockView({ zone, block }: BlockViewProps) {
                       Lote de esquina
                     </li>
                   )}
-                  <li className="flex items-center text-sm">
-                    <span className="text-green-600 mr-2">✓</span>
-                    Servicios completos
-                  </li>
+                  {selectedLot.features && selectedLot.features.length > 0 ? (
+                    selectedLot.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center text-sm">
+                        <span className="text-green-600 mr-2">✓</span>
+                        {feature}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="flex items-center text-sm">
+                      <span className="text-green-600 mr-2">✓</span>
+                      Servicios completos
+                    </li>
+                  )}
                 </ul>
               </div>
 

@@ -50,6 +50,12 @@ export async function getHierarchyDataAdmin(): Promise<HierarchyData> {
             area: Number(lot.area),
             price: lot.price ? Number(lot.price) : undefined,
             isCorner: lot.is_corner,
+            description: lot.description || undefined,
+            frontMeters: lot.front_meters ? Number(lot.front_meters) : undefined,
+            depthMeters: lot.depth_meters ? Number(lot.depth_meters) : undefined,
+            orientation: lot.orientation || undefined,
+            features: lot.features ? (typeof lot.features === 'string' ? JSON.parse(lot.features) : lot.features) : undefined,
+            imageUrl: lot.image_url || undefined,
           }));
 
         const blockData: Block = {
