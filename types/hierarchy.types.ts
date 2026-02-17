@@ -81,6 +81,7 @@ export interface ExplorerPageData {
   breadcrumbs: import('./navigation.types').BreadcrumbItem[];
   isLeafLevel: boolean;           // true if children have no further children
   currentPath: string[];          // layer slugs leading to current position
+  siblings: Layer[];              // layers sharing the same parent (includes current)
 }
 
 // ============================================================

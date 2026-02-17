@@ -189,6 +189,13 @@ export function buildExplorerPageData(
       .sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
+  // Get siblings (layers sharing the same parent, including current)
+  const siblings = currentLayer
+    ? allLayers
+        .filter((l) => l.parentId === currentLayer.parentId)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+    : [];
+
   // Build breadcrumbs
   const breadcrumbs: BreadcrumbItem[] = [
     { label: project.name, href: `/p/${project.slug}` },
@@ -211,6 +218,7 @@ export function buildExplorerPageData(
     breadcrumbs,
     isLeafLevel,
     currentPath: layerSlugs,
+    siblings,
   };
 }
 

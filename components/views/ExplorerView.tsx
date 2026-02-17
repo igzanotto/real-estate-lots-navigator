@@ -2,9 +2,10 @@
 
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ExplorerPageData, Media } from '@/types/hierarchy.types';
+import { ExplorerPageData, Layer, Media } from '@/types/hierarchy.types';
 import { InteractiveSVG } from '@/components/svg/InteractiveSVG';
 import { Breadcrumb } from '@/components/navigation/Breadcrumb';
+import { SiblingNavigator } from '@/components/navigation/SiblingNavigator';
 import { LayerDetailPanel } from '@/components/views/LayerDetailPanel';
 import { svgElementId } from '@/lib/utils/slug-helpers';
 
@@ -14,7 +15,7 @@ interface ExplorerViewProps {
 
 export function ExplorerView({ data }: ExplorerViewProps) {
   const router = useRouter();
-  const { project, currentLayer, children, breadcrumbs, isLeafLevel, currentPath, childrenMedia } = data;
+  const { project, currentLayer, children, breadcrumbs, isLeafLevel, currentPath, childrenMedia, siblings } = data;
 
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
 
@@ -37,18 +38,26 @@ export function ExplorerView({ data }: ExplorerViewProps) {
   // The SVG to display: currentLayer's SVG or project's root SVG
   const svgUrl = currentLayer?.svgPath ?? project.svgPath;
 
-  // Layer label for the subtitle (what type of thing are we looking at?)
+  // Layer label for the subtitle
   const childDepth = currentLayer ? currentLayer.depth + 1 : 0;
   const childLabel = project.layerLabels[childDepth] ?? 'elemento';
-  const currentLabel = currentLayer
-    ? project.layerLabels[currentLayer.depth] ?? ''
-    : '';
+  const currentLabel = project.layerLabels[currentLayer?.depth ?? -1] ?? '';
+
+  // Show sibling navigator when we have siblings and are at leaf level
+  const showSiblings = isLeafLevel && siblings.length > 1 && currentLayer != null;
+
+  // Navigate to a sibling (e.g., switch floors)
+  const handleSiblingSelect = useCallback((sibling: Layer) => {
+    if (sibling.id === currentLayer?.id) return;
+    // Replace last slug in path with sibling's slug
+    const siblingPath = [...currentPath.slice(0, -1), sibling.slug];
+    router.push(`/p/${project.slug}/${siblingPath.join('/')}`);
+  }, [currentLayer?.id, currentPath, project.slug, router]);
 
   // Prefetch adjacent children media
   const prefetchMedia = useCallback((layerId: string) => {
     const idx = children.findIndex((c) => c.id === layerId);
     if (idx === -1) return;
-    // Trigger loading of adjacent children's cover images
     [children[idx - 1], children[idx + 1]]
       .filter(Boolean)
       .forEach((child) => {
@@ -56,7 +65,6 @@ export function ExplorerView({ data }: ExplorerViewProps) {
           (m) => (m.purpose === 'cover' || m.purpose === 'gallery') && m.type === 'image'
         );
         if (coverMedia?.url) {
-          // Browser will cache this fetch
           fetch(coverMedia.url).catch(() => {});
         }
       });
@@ -82,7 +90,6 @@ export function ExplorerView({ data }: ExplorerViewProps) {
 
   const availableCount = children.filter((c) => c.status === 'available').length;
 
-  // Title
   const title = currentLayer
     ? currentLayer.name
     : project.name;
@@ -108,6 +115,7 @@ export function ExplorerView({ data }: ExplorerViewProps) {
       </header>
 
       <main className="flex-1 overflow-hidden flex">
+        {/* SVG map area */}
         <div className="flex-1 relative">
           {backgroundUrl && (
             <div
@@ -126,12 +134,23 @@ export function ExplorerView({ data }: ExplorerViewProps) {
           </div>
         </div>
 
+        {/* Detail panel (when a leaf child is selected) */}
         {selectedChild && (
           <LayerDetailPanel
             layer={selectedChild}
             media={selectedChildMedia}
             projectType={project.type}
             onClose={() => setSelectedLayerId(null)}
+          />
+        )}
+
+        {/* Sibling navigator (e.g., floor switcher) */}
+        {showSiblings && currentLayer && (
+          <SiblingNavigator
+            siblings={siblings}
+            currentLayerId={currentLayer.id}
+            label={currentLabel}
+            onSelect={handleSiblingSelect}
           />
         )}
       </main>

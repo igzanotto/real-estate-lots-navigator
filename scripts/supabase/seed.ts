@@ -2,8 +2,8 @@ import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * Seed the new schema (projects/layers/media) with sample data.
- * Creates a subdivision project similar to the original data.
+ * Seed the database with the Torre Norte building project.
+ * 2 towers, 4 floors each, 4 units per floor = 32 units.
  *
  * Usage: npx tsx scripts/supabase/seed.ts
  */
@@ -22,51 +22,54 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 type Status = 'available' | 'reserved' | 'sold' | 'not_available';
 
-function generateLotProperties(lotIndex: number, zoneLetter: string, isCorner: boolean): Record<string, unknown> {
-  const baseArea = 280;
-  const variation = (lotIndex % 8) * 10;
-  const area = baseArea + variation;
+function getUnitStatus(towerIdx: number, floorNum: number, unitIdx: number): Status {
+  const hash = towerIdx * 100 + floorNum * 10 + unitIdx;
+  if (hash % 7 === 0) return 'sold';
+  if (hash % 5 === 0) return 'reserved';
+  if (hash % 11 === 0) return 'not_available';
+  return 'available';
+}
 
-  const status = getLotStatus(lotIndex);
-  const pricePerSqm = isCorner ? 90 : 70;
-  const price = status === 'sold' ? null : area * pricePerSqm;
+function generateUnitProperties(
+  towerName: string,
+  floorNum: number,
+  unitLetter: string,
+  unitIdx: number,
+): Record<string, unknown> {
+  const isLarge = unitLetter === 'A' || unitLetter === 'C';
+  const area = isLarge ? 85 + (floorNum % 3) * 5 : 55 + (floorNum % 3) * 5;
+  const bedrooms = isLarge ? 3 : 2;
+  const bathrooms = isLarge ? 2 : 1;
+  const unitType = isLarge ? '3 Ambientes' : '2 Ambientes';
 
-  const frontMeters = isCorner ? 12 + (lotIndex % 3) : 10 + (lotIndex % 3);
-  const depthMeters = Math.round(area / frontMeters);
+  const basePricePerSqm = 1800 + floorNum * 120;
+  const status = getUnitStatus(towerName === 'A' ? 0 : 1, floorNum, unitIdx);
+  const price = status === 'sold' ? null : area * basePricePerSqm;
 
-  const orientations = ['Norte', 'Sur', 'Este', 'Oeste', 'Noreste', 'Noroeste'];
-  const orientation = orientations[lotIndex % orientations.length];
+  const orientations: Record<string, string> = {
+    A: 'Norte', B: 'Este', C: 'Sur', D: 'Oeste',
+  };
 
-  const baseFeatures = ['Agua potable', 'Electricidad', 'Alumbrado público', 'Acceso pavimentado'];
-  const premiumFeatures = ['Gas natural', 'Cloacas', 'Fibra óptica', 'Seguridad 24hs'];
-  const features = isCorner || status === 'available'
-    ? [...baseFeatures, ...premiumFeatures.slice(0, 2)]
-    : baseFeatures;
+  const hasBalcony = unitLetter === 'A' || unitLetter === 'B';
 
-  const descriptions = [
-    `Excelente lote ubicado en Zona ${zoneLetter}, ideal para construcción de vivienda familiar.`,
-    `Terreno con excelente ubicación y orientación ${orientation.toLowerCase()}.`,
-    `Lote ${isCorner ? 'de esquina ' : ''}con todos los servicios disponibles.`,
-    `Propiedad en zona residencial de alto desarrollo, perfecta para inversión.`,
-  ];
+  const baseFeatures = ['Aire acondicionado', 'Calefacción central', 'Portero eléctrico'];
+  const premiumFeatures = ['Piso de porcelanato', 'Cocina equipada', 'Vestidor'];
+  const features = isLarge
+    ? [...baseFeatures, ...premiumFeatures]
+    : [...baseFeatures, premiumFeatures[0]];
 
   return {
     area,
     price,
-    is_corner: isCorner,
-    front_meters: frontMeters,
-    depth_meters: depthMeters,
-    orientation,
+    bedrooms,
+    bathrooms,
+    unit_type: unitType,
+    floor_number: floorNum,
+    has_balcony: hasBalcony,
+    orientation: orientations[unitLetter] ?? 'Norte',
     features,
-    description: descriptions[lotIndex % descriptions.length],
+    description: `Departamento ${unitType.toLowerCase()} en piso ${floorNum} de Torre ${towerName}. ${hasBalcony ? 'Con balcón.' : ''} Orientación ${orientations[unitLetter]?.toLowerCase() ?? 'norte'}.`,
   };
-}
-
-function getLotStatus(index: number): Status {
-  if (index % 5 === 0) return 'sold';
-  if (index % 3 === 0) return 'reserved';
-  if (index % 7 === 0) return 'not_available';
-  return 'available';
 }
 
 async function seed() {
@@ -79,21 +82,21 @@ async function seed() {
   await supabase.from('projects').delete().not('id', 'is', null);
   console.log('  Done\n');
 
-  // Create subdivision project
-  console.log('Creating subdivision project...');
+  // Create building project
+  console.log('Creating building project...');
   const { data: project, error: projectError } = await supabase
     .from('projects')
     .insert({
-      slug: 'los-alamos',
-      name: 'Los Álamos',
-      description: 'Desarrollo residencial con lotes en 3 zonas',
-      type: 'subdivision',
+      slug: 'torre-norte',
+      name: 'Torre Norte',
+      description: 'Complejo residencial de 2 torres con departamentos de 2 y 3 ambientes',
+      type: 'building',
       status: 'available',
-      layer_labels: ['Zona', 'Manzana', 'Lote'],
+      layer_labels: ['Torre', 'Piso', 'Departamento'],
       max_depth: 3,
-      svg_path: '/svgs/mapa-principal.svg',
-      city: 'Ciudad Ejemplo',
-      state: 'Provincia Ejemplo',
+      svg_path: '/svgs/vista-torres.svg',
+      city: 'Buenos Aires',
+      state: 'CABA',
       country: 'Argentina',
     })
     .select()
@@ -102,104 +105,97 @@ async function seed() {
   if (projectError) throw projectError;
   console.log(`  Created: ${project.name}\n`);
 
-  // Zone config
-  const zoneConfig = [
-    { letter: 'A', blockCount: 4 },
-    { letter: 'B', blockCount: 4 },
-    { letter: 'C', blockCount: 6 },
-  ];
-
+  const towers = ['A', 'B'];
+  const floorsPerTower = 4;
+  const unitLetters = ['A', 'B', 'C', 'D'];
   let totalLayers = 0;
 
-  for (const { letter, blockCount } of zoneConfig) {
-    const zoneSlug = `zona-${letter.toLowerCase()}`;
+  for (let t = 0; t < towers.length; t++) {
+    const towerName = towers[t];
+    const towerSlug = `torre-${towerName.toLowerCase()}`;
 
-    // Create zone layer (depth 0)
-    const { data: zoneLayer, error: zoneError } = await supabase
+    // Tower layer (depth 0)
+    // SVG: /svgs/vista-torres.svg → element id="torre-a" / id="torre-b"
+    // Children SVG: /svgs/torres/torre-a.svg (shows floors piso-1..piso-4)
+    const { data: towerLayer, error: towerError } = await supabase
       .from('layers')
       .insert({
         project_id: project.id,
         parent_id: null,
         depth: 0,
-        sort_order: letter.charCodeAt(0) - 65,
-        slug: zoneSlug,
-        name: `Zona ${letter}`,
-        label: `Zona ${letter}`,
-        svg_element_id: zoneSlug,
+        sort_order: t,
+        slug: towerSlug,
+        name: `Torre ${towerName}`,
+        label: `Torre ${towerName}`,
+        svg_element_id: towerSlug,
         status: 'available',
-        svg_path: `/svgs/zonas/${zoneSlug}.svg`,
+        svg_path: `/svgs/torres/${towerSlug}.svg`,
         properties: {},
       })
       .select()
       .single();
 
-    if (zoneError) throw zoneError;
+    if (towerError) throw towerError;
     totalLayers++;
-    console.log(`  Zone: ${zoneSlug}`);
+    console.log(`  Tower: ${towerSlug}`);
 
-    // Create block layers (depth 1)
-    for (let b = 1; b <= blockCount; b++) {
-      const blockSlug = `${zoneSlug}-manzana-${b}`;
-      const svgElementId = `manzana-${b}`;
+    // Floor layers (depth 1)
+    for (let f = 1; f <= floorsPerTower; f++) {
+      const floorSlug = `${towerSlug}-piso-${f}`;
 
-      const { data: blockLayer, error: blockError } = await supabase
+      // SVG: /svgs/torres/torre-a.svg → element id="piso-1" .. id="piso-4"
+      // Children SVG: /svgs/pisos/torre-a-piso-1.svg (shows deptos depto-a..depto-d)
+      const { data: floorLayer, error: floorError } = await supabase
         .from('layers')
         .insert({
           project_id: project.id,
-          parent_id: zoneLayer.id,
+          parent_id: towerLayer.id,
           depth: 1,
-          sort_order: b - 1,
-          slug: blockSlug,
-          name: `Manzana ${b}`,
-          label: `M${b}`,
-          svg_element_id: svgElementId,
+          sort_order: f - 1,
+          slug: floorSlug,
+          name: `Piso ${f}`,
+          label: `P${f}`,
+          svg_element_id: `piso-${f}`,
           status: 'available',
-          svg_path: `/svgs/manzanas/${blockSlug}.svg`,
+          svg_path: `/svgs/pisos/${floorSlug}.svg`,
           properties: {},
         })
         .select()
         .single();
 
-      if (blockError) throw blockError;
+      if (floorError) throw floorError;
       totalLayers++;
 
-      // Create lot layers (depth 2)
-      const lotsToInsert = [];
-      for (let l = 1; l <= 8; l++) {
-        const lotNum = l.toString().padStart(2, '0');
-        const lotSlug = `${blockSlug}-lote-${lotNum}`;
-        const isCorner = l === 1 || l === 2 || l === 7 || l === 8;
-        const status = getLotStatus(l);
+      // Unit layers (depth 2 — leaves, shown in detail panel)
+      // SVG: /svgs/pisos/torre-a-piso-1.svg → element id="depto-a" .. id="depto-d"
+      const unitsToInsert = unitLetters.map((letter, idx) => ({
+        project_id: project.id,
+        parent_id: floorLayer.id,
+        depth: 2,
+        sort_order: idx,
+        slug: `${floorSlug}-depto-${letter.toLowerCase()}`,
+        name: `Depto ${letter}`,
+        label: `${letter}`,
+        svg_element_id: `depto-${letter.toLowerCase()}`,
+        status: getUnitStatus(t, f, idx),
+        svg_path: null,
+        properties: generateUnitProperties(towerName, f, letter, idx),
+      }));
 
-        lotsToInsert.push({
-          project_id: project.id,
-          parent_id: blockLayer.id,
-          depth: 2,
-          sort_order: l - 1,
-          slug: lotSlug,
-          name: `Lote ${l}`,
-          label: `L${l}`,
-          svg_element_id: `lote-${lotNum}`,
-          status,
-          svg_path: null,
-          properties: generateLotProperties(l, letter, isCorner),
-        });
-      }
+      const { error: unitsError } = await supabase.from('layers').insert(unitsToInsert);
+      if (unitsError) throw unitsError;
+      totalLayers += unitsToInsert.length;
 
-      const { error: lotsError } = await supabase.from('layers').insert(lotsToInsert);
-      if (lotsError) throw lotsError;
-      totalLayers += lotsToInsert.length;
-
-      console.log(`    Block: ${blockSlug} (${lotsToInsert.length} lots)`);
+      console.log(`    Floor: ${floorSlug} (${unitsToInsert.length} units)`);
     }
   }
 
   console.log(`\nSeed complete!`);
   console.log(`  Project: ${project.name}`);
   console.log(`  Total layers: ${totalLayers}`);
-  console.log(`    Zones: ${zoneConfig.length}`);
-  console.log(`    Blocks: ${zoneConfig.reduce((sum, z) => sum + z.blockCount, 0)}`);
-  console.log(`    Lots: ${zoneConfig.reduce((sum, z) => sum + z.blockCount * 8, 0)}`);
+  console.log(`    Towers: ${towers.length}`);
+  console.log(`    Floors: ${towers.length * floorsPerTower}`);
+  console.log(`    Units: ${towers.length * floorsPerTower * unitLetters.length}`);
 }
 
 seed().catch((err) => {

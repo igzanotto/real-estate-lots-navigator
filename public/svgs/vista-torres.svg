@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <defs>
     <style>
-      .zone-boundary {
+      .tower-boundary {
         fill: rgba(100, 150, 200, 0.1);
         stroke: #4A90E2;
         stroke-width: 4;
@@ -10,7 +10,7 @@
         cursor: pointer;
         transition: all 0.3s ease;
       }
-      .zone-boundary:hover {
+      .tower-boundary:hover {
         fill: rgba(100, 150, 200, 0.3);
         stroke: #2E5C8A;
         stroke-width: 6;
@@ -24,15 +24,11 @@
   <!-- Background -->
   <rect class="background" width="1920" height="1080"/>
 
-  <!-- Zona A - Top Left (pegada a zona B) -->
-  <rect id="zona-a" class="zone-boundary"
-        x="200" y="150" width="760" height="400" rx="8"/>
+  <!-- Torre A - Left -->
+  <rect id="torre-a" class="tower-boundary"
+        x="250" y="100" width="660" height="880" rx="8"/>
 
-  <!-- Zona B - Top Right (pegada a zona A) -->
-  <rect id="zona-b" class="zone-boundary"
-        x="960" y="150" width="760" height="400" rx="8"/>
-
-  <!-- Zona C - Bottom (pegada a A y B, spanning full width) -->
-  <rect id="zona-c" class="zone-boundary"
-        x="200" y="550" width="1520" height="380" rx="8"/>
+  <!-- Torre B - Right -->
+  <rect id="torre-b" class="tower-boundary"
+        x="1010" y="100" width="660" height="880" rx="8"/>
 </svg>
