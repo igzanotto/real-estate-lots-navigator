@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:seed": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/seed.ts",
     "db:migrate": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/migrate-data.ts",
-    "db:upload-images": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/upload-images.ts"
+    "db:upload-images": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/upload-images.ts",
+    "db:upload-backgrounds": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/upload-backgrounds.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
