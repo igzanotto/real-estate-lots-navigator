@@ -4,24 +4,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ExplorerPageData, Media } from '@/types/hierarchy.types';
 import { Breadcrumb } from '@/components/navigation/Breadcrumb';
+import { STATUS_LABELS, STATUS_CLASSES } from '@/lib/constants/status';
 
 interface UnitPageProps {
   data: ExplorerPageData;
 }
-
-const STATUS_LABELS: Record<string, string> = {
-  available: 'Disponible',
-  reserved: 'Reservado',
-  sold: 'Vendido',
-  not_available: 'No Disponible',
-};
-
-const STATUS_CLASSES: Record<string, string> = {
-  available: 'bg-green-100 text-green-800',
-  reserved: 'bg-orange-100 text-orange-800',
-  sold: 'bg-red-100 text-red-800',
-  not_available: 'bg-gray-100 text-gray-800',
-};
 
 export function UnitPage({ data }: UnitPageProps) {
   const router = useRouter();

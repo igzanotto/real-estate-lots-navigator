@@ -69,6 +69,15 @@ export interface Media {
 }
 
 // ============================================================
+// Navigation
+// ============================================================
+
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+// ============================================================
 // Page data (what views receive)
 // ============================================================
 
@@ -78,7 +87,7 @@ export interface ExplorerPageData {
   children: Layer[];              // children of currentLayer (or root layers)
   media: Media[];                 // media for currentLayer (or project)
   childrenMedia: Record<string, Media[]>;  // layerId → media[]
-  breadcrumbs: import('./navigation.types').BreadcrumbItem[];
+  breadcrumbs: BreadcrumbItem[];
   isLeafLevel: boolean;           // true if children have no further children
   currentPath: string[];          // layer slugs leading to current position
   siblings: Layer[];              // layers sharing the same parent (includes current)

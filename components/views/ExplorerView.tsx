@@ -7,6 +7,7 @@ import { InteractiveSVG } from '@/components/svg/InteractiveSVG';
 import { Breadcrumb } from '@/components/navigation/Breadcrumb';
 import { SiblingNavigator } from '@/components/navigation/SiblingNavigator';
 import { svgElementId } from '@/lib/utils/slug-helpers';
+import { STATUS_LABELS, STATUS_DOT_CLASSES } from '@/lib/constants/status';
 
 interface ExplorerViewProps {
   data: ExplorerPageData;
@@ -116,18 +117,12 @@ export function ExplorerView({ data }: ExplorerViewProps) {
             {childLabel.toLowerCase()}s disponibles
           </div>
           <div className="flex gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span>Disponible</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-orange-500" />
-              <span>Reservado</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span>Vendido</span>
-            </div>
+            {(['available', 'reserved', 'sold'] as const).map((status) => (
+              <div key={status} className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${STATUS_DOT_CLASSES[status]}`} />
+                <span>{STATUS_LABELS[status]}</span>
+              </div>
+            ))}
           </div>
         </div>
       </footer>

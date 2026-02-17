@@ -7,8 +7,8 @@ import {
   ProjectType,
   MediaType,
   MediaPurpose,
+  BreadcrumbItem,
 } from '@/types/hierarchy.types';
-import { BreadcrumbItem } from '@/types/navigation.types';
 
 // ============================================================
 // Raw DB row types (snake_case from Supabase)

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { EntityStatus } from '@/types/hierarchy.types';
+import { STATUS_COLORS } from '@/lib/constants/status';
 
 export interface SVGEntityConfig {
   id: string;
@@ -10,36 +11,16 @@ export interface SVGEntityConfig {
   onClick: () => void;
 }
 
-const STATUS_COLORS: Record<EntityStatus, { fill: string; stroke: string; indicator: string }> = {
-  available: {
-    fill: 'rgba(76, 175, 80, 0.15)',
-    stroke: '#4CAF50',
-    indicator: '#4CAF50',
-  },
-  reserved: {
-    fill: 'rgba(255, 152, 0, 0.15)',
-    stroke: '#FF9800',
-    indicator: '#FF9800',
-  },
-  sold: {
-    fill: 'rgba(244, 67, 54, 0.15)',
-    stroke: '#F44336',
-    indicator: '#F44336',
-  },
-  not_available: {
-    fill: 'rgba(158, 158, 158, 0.15)',
-    stroke: '#9E9E9E',
-    indicator: '#9E9E9E',
-  },
-};
-
 interface InteractiveSVGProps {
   svgUrl: string;
   entities: SVGEntityConfig[];
 }
 
+type ListenerEntry = { element: SVGElement; event: string; handler: EventListener };
+
 export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const listenersRef = useRef<ListenerEntry[]>([]);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -68,6 +49,8 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
       }
     });
 
+    const listeners: ListenerEntry[] = [];
+
     // Process each entity
     entities.forEach((entity) => {
       const element = svg.querySelector(`#${entity.id}`) as SVGElement;
@@ -83,20 +66,28 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
       element.style.fill = colors.fill;
       element.style.stroke = colors.stroke;
 
-      element.addEventListener('mouseenter', () => {
+      const onEnter = () => {
         element.style.fill = colors.fill.replace('0.15', '0.35');
         element.style.strokeWidth = '4';
-      });
-
-      element.addEventListener('mouseleave', () => {
+      };
+      const onLeave = () => {
         element.style.fill = colors.fill;
         element.style.strokeWidth = '2';
-      });
-
-      element.addEventListener('click', (e) => {
+      };
+      const onClick = (e: Event) => {
         e.stopPropagation();
         entity.onClick();
-      });
+      };
+
+      element.addEventListener('mouseenter', onEnter);
+      element.addEventListener('mouseleave', onLeave);
+      element.addEventListener('click', onClick);
+
+      listeners.push(
+        { element, event: 'mouseenter', handler: onEnter },
+        { element, event: 'mouseleave', handler: onLeave },
+        { element, event: 'click', handler: onClick },
+      );
 
       // Add label
       try {
@@ -144,6 +135,8 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
         console.warn(`Could not add label for ${entity.id}:`, err);
       }
     });
+
+    listenersRef.current = listeners;
   }, [svgUrl, entities]);
 
   useEffect(() => {
@@ -166,6 +159,10 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
 
     return () => {
       cancelled = true;
+      for (const { element, event, handler } of listenersRef.current) {
+        element.removeEventListener(event, handler);
+      }
+      listenersRef.current = [];
       container.innerHTML = '';
     };
   }, [setupSVG]);

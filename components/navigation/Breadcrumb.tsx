@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BreadcrumbItem } from '@/types/navigation.types';
+import { BreadcrumbItem } from '@/types/hierarchy.types';
 
 interface BreadcrumbProps {
   items: BreadcrumbItem[];

@@ -37,12 +37,12 @@ SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
 ## 4. Crear Esquema de Base de Datos
 
 1. Ve al **SQL Editor** en Supabase
-2. Pega el contenido de [`SETUP_SCHEMA.sql`](./SETUP_SCHEMA.sql)
+2. Pega el contenido de [`SETUP_SCHEMA_V2.sql`](./SETUP_SCHEMA_V2.sql)
 3. Click en **Run**
 
 Esto crea:
 
-- 3 tablas: `zones`, `blocks`, `lots`
+- 3 tablas: `projects`, `layers`, `media`
 - Indices para performance
 - Triggers para `updated_at`
 - Row Level Security con lectura publica
@@ -56,37 +56,24 @@ npm run db:seed
 Resultado esperado:
 
 ```
-Zones: 3
-Blocks: 14
-Lots: 112
+Projects: 1
+Layers: ~30 (torres, pisos, unidades)
+Media: variable
 ```
 
 ## 6. Configurar Supabase Storage (imagenes)
 
-Las imagenes de fondo y fotos de lotes se sirven desde Supabase Storage.
+Las imagenes de fondo y fotos se sirven desde Supabase Storage.
 
 1. Ve a **Storage** en el dashboard de Supabase
 2. Crea un bucket llamado `images`
 3. Marcalo como **Public**
-4. Sube las imagenes manualmente con esta estructura:
+4. Usa los scripts para subir imagenes:
 
+```bash
+npm run db:upload-images       # Galeria de unidades
+npm run db:upload-backgrounds  # Fondos de exploracion
 ```
-images/
-  backgrounds/
-    mapa-principal.jpg           Fondo del mapa principal
-    zona-a.jpg                   Fondo de Zona A
-    zona-b.jpg                   Fondo de Zona B
-    zona-c.jpg                   Fondo de Zona C
-    zona-a-manzana-1.jpg         Fondo de cada manzana
-    ...
-  zona-a/
-    manzana-1/
-      lote-01-main.jpg           Foto de cada lote
-      lote-02-main.jpg
-      ...
-```
-
-Luego actualiza el campo `image_url` de cada lote en la tabla `lots` con la URL publica del Storage.
 
 ## 7. Verificar
 
@@ -96,42 +83,39 @@ npm run dev
 
 Abrir http://localhost:3000 y verificar:
 
-- Mapa principal con 3 zonas clickeables
-- Click en zona muestra sus manzanas
-- Click en manzana muestra lotes con panel de detalle
+- Listado de proyectos en la pagina principal
+- Click en proyecto muestra SVG interactivo con capas clickeables
+- Navegacion por capas hasta llegar a unidades/lotes
 - Imagenes de fondo detras de los SVGs
-- Fotos de lotes en el panel lateral
+- Galeria de fotos en paginas de detalle
 
 ## Estructura de Datos
 
-### zones
+### projects
 
-| slug | name | status |
-|------|------|--------|
-| zona-a | Zona A | available |
-| zona-b | Zona B | available |
-| zona-c | Zona C | available |
+| slug | name | type | status |
+|------|------|------|--------|
+| edificio-central | Edificio Central | building | available |
 
-### blocks (14 total: 4 + 4 + 6)
+### layers (jerarquia variable, hasta 4 niveles)
 
-| slug | name | zone |
-|------|------|------|
-| zona-a-manzana-1 | Manzana 1 | Zona A |
-| zona-a-manzana-2 | Manzana 2 | Zona A |
-| ... | ... | ... |
-| zona-c-manzana-6 | Manzana 6 | Zona C |
+| slug | name | depth | parent |
+|------|------|-------|--------|
+| torre-a | Torre A | 0 | (root) |
+| piso-1 | Piso 1 | 1 | Torre A |
+| unidad-101 | Unidad 101 | 2 | Piso 1 |
 
-### lots (112 total: 8 por manzana)
+### media
 
-| slug | name | status | area | price |
-|------|------|--------|------|-------|
-| zona-a-manzana-1-lote-01 | Lote 1 | available | 280 | 25200 |
-| zona-a-manzana-1-lote-02 | Lote 2 | available | 290 | 26100 |
-| zona-a-manzana-1-lote-03 | Lote 3 | reserved | 300 | 21000 |
+| purpose | type | layer |
+|---------|------|-------|
+| exploration | image | Torre A |
+| gallery | image | Unidad 101 |
+| cover | image | Unidad 101 |
 
 ## Seguridad (RLS)
 
-- Lectura publica: cualquiera puede ver zonas, manzanas y lotes
+- Lectura publica: cualquiera puede ver proyectos, capas y media
 - Escritura restringida: solo `service_role` key puede modificar datos
 
 ## Troubleshooting
@@ -139,8 +123,8 @@ Abrir http://localhost:3000 y verificar:
 ### Error: "Missing Supabase credentials"
 Verificar que `.env.local` tenga las 3 variables. Reiniciar el servidor.
 
-### Error: "relation 'zones' does not exist"
-Ejecutar `SETUP_SCHEMA.sql` en el SQL Editor de Supabase.
+### Error: "relation 'projects' does not exist"
+Ejecutar `SETUP_SCHEMA_V2.sql` en el SQL Editor de Supabase.
 
 ### Error TLS en WSL2
 El script `dev` ya incluye `NODE_TLS_REJECT_UNAUTHORIZED=0`. Si otros scripts fallan, agregar el mismo prefijo.
@@ -148,4 +132,4 @@ El script `dev` ya incluye `NODE_TLS_REJECT_UNAUTHORIZED=0`. Si otros scripts fa
 ### Imagenes no se ven
 1. Verificar que el bucket `images` sea publico
 2. Verificar que los archivos existan en Storage con la estructura correcta
-3. Verificar que el campo `image_url` de los lotes apunte a las URLs correctas
+3. Verificar que las URLs en la tabla `media` sean correctas

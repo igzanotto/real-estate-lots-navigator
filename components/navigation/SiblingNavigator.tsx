@@ -1,6 +1,7 @@
 'use client';
 
 import { Layer } from '@/types/hierarchy.types';
+import { STATUS_DOT_CLASSES } from '@/lib/constants/status';
 
 interface SiblingNavigatorProps {
   siblings: Layer[];
@@ -8,13 +9,6 @@ interface SiblingNavigatorProps {
   label: string;            // e.g. "Piso"
   onSelect: (sibling: Layer) => void;
 }
-
-const STATUS_DOT: Record<string, string> = {
-  available: 'bg-green-400',
-  reserved: 'bg-orange-400',
-  sold: 'bg-red-400',
-  not_available: 'bg-gray-400',
-};
 
 export function SiblingNavigator({ siblings, currentLayerId, label, onSelect }: SiblingNavigatorProps) {
   // Show in reverse order so highest floor is at top
@@ -43,7 +37,7 @@ export function SiblingNavigator({ siblings, currentLayerId, label, onSelect }: 
                   }
                 `}
               >
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_DOT[sibling.status]}`} />
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_DOT_CLASSES[sibling.status]}`} />
                 <span className="truncate">{sibling.label}</span>
               </button>
             );
