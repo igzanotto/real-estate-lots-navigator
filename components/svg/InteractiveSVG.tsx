@@ -1,8 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { SVGEntityConfig } from '@/types/svg.types';
 import { EntityStatus } from '@/types/hierarchy.types';
+
+export interface SVGEntityConfig {
+  id: string;
+  label: string;
+  status: EntityStatus;
+  onClick: () => void;
+}
 
 const STATUS_COLORS: Record<EntityStatus, { fill: string; stroke: string; indicator: string }> = {
   available: {
