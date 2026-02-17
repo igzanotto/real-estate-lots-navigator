@@ -14,11 +14,12 @@ export interface SVGEntityConfig {
 interface InteractiveSVGProps {
   svgUrl: string;
   entities: SVGEntityConfig[];
+  backgroundUrl?: string;
 }
 
 type ListenerEntry = { element: SVGElement; event: string; handler: EventListener };
 
-export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
+export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveSVGProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const listenersRef = useRef<ListenerEntry[]>([]);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -39,6 +40,21 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
     svg.setAttribute('height', '100%');
     svg.style.display = 'block';
     svg.style.background = 'transparent';
+
+    // Inject background image inside SVG so it scales with the same coordinate system
+    if (backgroundUrl) {
+      const viewBox = svg.getAttribute('viewBox');
+      const [, , vbWidth, vbHeight] = (viewBox ?? '0 0 1920 1080').split(' ');
+      const bgImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+      bgImage.setAttribute('href', backgroundUrl);
+      bgImage.setAttribute('x', '0');
+      bgImage.setAttribute('y', '0');
+      bgImage.setAttribute('width', vbWidth);
+      bgImage.setAttribute('height', vbHeight);
+      bgImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+      bgImage.setAttribute('opacity', '0.6');
+      svg.insertBefore(bgImage, svg.firstChild);
+    }
 
     // Make non-interactive elements semi-transparent so background shows through
     const allPaths = svg.querySelectorAll('path, rect, polygon, circle, ellipse');
@@ -137,7 +153,7 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
     });
 
     listenersRef.current = listeners;
-  }, [svgUrl, entities]);
+  }, [svgUrl, entities, backgroundUrl]);
 
   useEffect(() => {
     const container = containerRef.current;

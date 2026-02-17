@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getExplorerPageData } from '@/lib/data/repository';
 import { getProjectSlugsAdmin } from '@/lib/data/repository-admin';
-import { ExplorerView } from '@/components/views/ExplorerView';
+import { ProjectHomePage } from '@/components/views/ProjectHomePage';
 
 interface ProjectPageProps {
   params: Promise<{ projectSlug: string }>;
@@ -17,7 +17,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound();
   }
 
-  return <ExplorerView data={data} />;
+  return <ProjectHomePage data={data} />;
 }
 
 export async function generateStaticParams() {

@@ -23,7 +23,7 @@ export function UnitPage({ data }: UnitPageProps) {
   if (!currentLayer) return null;
 
   const props = currentLayer.properties;
-  const galleryMedia = media.filter((m) => m.type === 'image' && (m.purpose === 'gallery' || m.purpose === 'cover'));
+  const galleryMedia = media.filter((m) => m.type === 'image' && (m.purpose === 'gallery' || m.purpose === 'cover' || m.purpose === 'floor_plan'));
   const allMedia = media.filter((m) => m.type === 'image');
 
   const area = props.area as number | undefined;
