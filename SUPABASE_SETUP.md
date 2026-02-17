@@ -63,41 +63,30 @@ Lots: 112
 
 ## 6. Configurar Supabase Storage (imagenes)
 
+Las imagenes de fondo y fotos de lotes se sirven desde Supabase Storage.
+
 1. Ve a **Storage** en el dashboard de Supabase
 2. Crea un bucket llamado `images`
 3. Marcalo como **Public**
-
-Luego sube las imagenes:
-
-```bash
-npm run db:upload-all    # Sube backgrounds (18) + fotos de lotes (112)
-npm run db:add-images    # Vincula las fotos a los registros en DB
-npm run db:verify-images # Verifica que todo este OK
-```
-
-Estructura del bucket:
+4. Sube las imagenes manualmente con esta estructura:
 
 ```
 images/
   backgrounds/
-    mapa-principal.jpg
-    zona-a.jpg
-    zona-b.jpg
-    zona-c.jpg
-    zona-a-manzana-1.jpg
+    mapa-principal.jpg           Fondo del mapa principal
+    zona-a.jpg                   Fondo de Zona A
+    zona-b.jpg                   Fondo de Zona B
+    zona-c.jpg                   Fondo de Zona C
+    zona-a-manzana-1.jpg         Fondo de cada manzana
     ...
   zona-a/
     manzana-1/
-      lote-01-main.jpg
+      lote-01-main.jpg           Foto de cada lote
       lote-02-main.jpg
       ...
-    manzana-2/
-      ...
-  zona-b/
-    ...
-  zona-c/
-    ...
 ```
+
+Luego actualiza el campo `image_url` de cada lote en la tabla `lots` con la URL publica del Storage.
 
 ## 7. Verificar
 
@@ -158,5 +147,5 @@ El script `dev` ya incluye `NODE_TLS_REJECT_UNAUTHORIZED=0`. Si otros scripts fa
 
 ### Imagenes no se ven
 1. Verificar que el bucket `images` sea publico
-2. Ejecutar `npm run db:verify-images` para verificar integridad
-3. Si hay imagenes faltantes: `npm run db:upload-all && npm run db:add-images`
+2. Verificar que los archivos existan en Storage con la estructura correcta
+3. Verificar que el campo `image_url` de los lotes apunte a las URLs correctas

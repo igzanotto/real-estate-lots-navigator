@@ -56,23 +56,13 @@ Ejecutar `SETUP_SCHEMA.sql` en el SQL Editor de Supabase. Esto crea las tablas `
 npm run db:seed
 ```
 
-### 5. Configurar imagenes (opcional)
-
-Crear un bucket publico llamado `images` en Supabase Storage, luego:
-
-```bash
-npm run db:upload-all    # Sube backgrounds y fotos de lotes
-npm run db:add-images    # Vincula las fotos a los lotes en la DB
-npm run db:verify-images # Verifica integridad
-```
-
-### 6. Iniciar servidor de desarrollo
+### 5. Iniciar servidor de desarrollo
 
 ```bash
 npm run dev
 ```
 
-Ver los demas scripts de setup en la guia detallada: [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md).
+Ver [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md) para la guia completa.
 
 ## Estructura del Proyecto
 
@@ -98,24 +88,16 @@ lib/
   data/lots-repository.ts                 Fetch de datos (server client, cookies)
   data/lots-repository-admin.ts           Fetch de datos (admin client, sin cookies)
   data/transform.ts                       Transforma rows de DB a jerarquia tipada
-  supabase/client.ts                      Cliente Supabase para browser
   supabase/server.ts                      Cliente Supabase para Server Components
   supabase/admin.ts                       Cliente Supabase con service role key
-  storage/image-helpers.ts                Generacion de URLs de Supabase Storage
   utils/slug-helpers.ts                   Extraccion de IDs de SVG desde slugs
 
 types/
   hierarchy.types.ts                      Zone, Block, Lot, HierarchyData
   navigation.types.ts                     BreadcrumbItem
-  svg.types.ts                            SVGEntityConfig
-  database.types.ts                       Tipos generados de Supabase
 
 scripts/supabase/
   seed.ts                                 Poblar DB con datos de ejemplo
-  upload-all-images.ts                    Subir imagenes a Supabase Storage
-  add-sample-images.ts                    Vincular imagenes a lotes en DB
-  verify-images.ts                        Verificar integridad de imagenes
-  remove-sample-images.ts                 Desvincular imagenes de lotes
 
 public/svgs/
   mapa-principal.svg                      Mapa con 3 zonas (zona-a, zona-b, zona-c)
@@ -154,10 +136,6 @@ npm run dev              # Servidor de desarrollo
 npm run build            # Build de produccion
 npm run lint             # ESLint
 npm run db:seed          # Poblar DB (3 zonas, 14 manzanas, 112 lotes)
-npm run db:upload-all    # Subir imagenes a Storage
-npm run db:add-images    # Vincular imagenes a lotes
-npm run db:verify-images # Verificar integridad de imagenes
-npm run db:remove-images # Desvincular imagenes de lotes
 ```
 
 ## Esquema de base de datos
