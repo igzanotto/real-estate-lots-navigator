@@ -41,6 +41,13 @@ CREATE TABLE IF NOT EXISTS lots (
   area NUMERIC NOT NULL,
   price NUMERIC,
   is_corner BOOLEAN DEFAULT false,
+  -- Lot details
+  description TEXT,
+  front_meters NUMERIC,
+  depth_meters NUMERIC,
+  orientation TEXT,
+  features JSONB,
+  image_url TEXT,
   -- Buyer information (optional)
   buyer_name TEXT,
   buyer_email TEXT,

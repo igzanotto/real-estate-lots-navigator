@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { HierarchyData } from '@/types/hierarchy.types';
 import { InteractiveSVG } from '@/components/svg/InteractiveSVG';
@@ -11,14 +12,18 @@ interface MapViewProps {
 export function MapView({ data }: MapViewProps) {
   const router = useRouter();
 
-  const entityConfigs = data.zones.map((zone) => ({
-    id: zone.id,
-    label: zone.label,
-    status: zone.status,
-    onClick: () => {
-      router.push(`/zona/${zone.slug}`);
-    },
-  }));
+  const entityConfigs = useMemo(
+    () =>
+      data.zones.map((zone) => ({
+        id: zone.id,
+        label: zone.label,
+        status: zone.status,
+        onClick: () => {
+          router.push(`/zona/${zone.slug}`);
+        },
+      })),
+    [data.zones, router]
+  );
 
   return (
     <div className="flex flex-col h-screen">
@@ -34,9 +39,10 @@ export function MapView({ data }: MapViewProps) {
       <main className="flex-1 overflow-hidden relative">
         {/* Background Image */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url(${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/backgrounds/mapa-principal.jpg)`,
+            opacity: 0.6,
           }}
         />
 
@@ -45,7 +51,6 @@ export function MapView({ data }: MapViewProps) {
           <InteractiveSVG
             svgUrl={data.mapSvgPath}
             entities={entityConfigs}
-            level="map"
           />
         </div>
       </main>

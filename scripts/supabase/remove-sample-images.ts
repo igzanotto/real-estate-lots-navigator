@@ -25,8 +25,7 @@ async function removeSampleImages() {
 
     console.log('✅ Image URLs removed from database!');
     console.log('\n💡 Note: Images still exist in Supabase Storage.');
-    console.log('   To delete from storage, go to:');
-    console.log('   https://supabase.com/dashboard/project/wjarjmsswpphqvslzozy/storage/buckets/images');
+    console.log('   Delete them manually from the Supabase dashboard if needed.');
   } catch (error) {
     console.error('❌ Error removing images:', error);
     process.exit(1);

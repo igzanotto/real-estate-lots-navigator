@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getZoneBySlug } from '@/lib/data/lots-repository';
+import { getHierarchyData } from '@/lib/data/lots-repository';
 import { getHierarchyDataAdmin } from '@/lib/data/lots-repository-admin';
 import { ZoneView } from '@/components/views/ZoneView';
 
@@ -9,7 +9,8 @@ interface ZonePageProps {
 
 export default async function ZonePage({ params }: ZonePageProps) {
   const { zoneId } = await params;
-  const zone = await getZoneBySlug(zoneId);
+  const data = await getHierarchyData();
+  const zone = data.zones.find((z) => z.slug === zoneId);
 
   if (!zone) {
     notFound();

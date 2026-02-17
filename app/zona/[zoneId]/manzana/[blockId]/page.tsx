@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getZoneBySlug, getBlockBySlug } from '@/lib/data/lots-repository';
+import { getHierarchyData } from '@/lib/data/lots-repository';
 import { getHierarchyDataAdmin } from '@/lib/data/lots-repository-admin';
 import { BlockView } from '@/components/views/BlockView';
 
@@ -9,8 +9,9 @@ interface BlockPageProps {
 
 export default async function BlockPage({ params }: BlockPageProps) {
   const { zoneId, blockId } = await params;
-  const zone = await getZoneBySlug(zoneId);
-  const block = await getBlockBySlug(zoneId, blockId);
+  const data = await getHierarchyData();
+  const zone = data.zones.find((z) => z.slug === zoneId);
+  const block = zone?.blocks.find((b) => b.slug === blockId);
 
   if (!zone || !block) {
     notFound();

@@ -20,8 +20,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
  * Generate 8 lots for a block (4 rows × 2 columns)
  */
 function generateLotsData(zoneLetter: string, blockNum: number, zoneDbId: string, blockDbId: string) {
-  const lots: any[] = [];
-  const zoneSlug = `zona-${zoneLetter.toLowerCase()}`;
+  const lots: Record<string, unknown>[] = [];
   const blockSlug = `zona-${zoneLetter.toLowerCase()}-manzana-${blockNum}`;
 
   for (let i = 1; i <= 8; i++) {
@@ -110,9 +109,9 @@ async function seedDatabase() {
   try {
     // Clear existing data (in reverse order due to foreign keys)
     console.log('🗑️  Clearing existing data...');
-    await supabase.from('lots').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('blocks').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('zones').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('lots').delete().not('id', 'is', null);
+    await supabase.from('blocks').delete().not('id', 'is', null);
+    await supabase.from('zones').delete().not('id', 'is', null);
     console.log('✅ Existing data cleared\n');
 
     // Seed Zones

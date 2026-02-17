@@ -140,6 +140,12 @@ export interface Database {
           area?: number
           price?: number | null
           is_corner?: boolean
+          description?: string | null
+          front_meters?: number | null
+          depth_meters?: number | null
+          orientation?: string | null
+          features?: Json | null
+          image_url?: string | null
           buyer_name?: string | null
           buyer_email?: string | null
           buyer_phone?: string | null

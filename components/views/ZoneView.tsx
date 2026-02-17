@@ -1,9 +1,11 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Zone } from '@/types/hierarchy.types';
 import { InteractiveSVG } from '@/components/svg/InteractiveSVG';
 import { Breadcrumb } from '@/components/navigation/Breadcrumb';
+import { blockSvgId } from '@/lib/utils/slug-helpers';
 
 interface ZoneViewProps {
   zone: Zone;
@@ -12,14 +14,18 @@ interface ZoneViewProps {
 export function ZoneView({ zone }: ZoneViewProps) {
   const router = useRouter();
 
-  const entityConfigs = zone.blocks.map((block) => ({
-    id: 'manzana-' + block.id.split('-manzana-')[1],
-    label: block.label,
-    status: block.status,
-    onClick: () => {
-      router.push(`/zona/${zone.slug}/manzana/${block.slug}`);
-    },
-  }));
+  const entityConfigs = useMemo(
+    () =>
+      zone.blocks.map((block) => ({
+        id: blockSvgId(block.slug),
+        label: block.label,
+        status: block.status,
+        onClick: () => {
+          router.push(`/zona/${zone.slug}/manzana/${block.slug}`);
+        },
+      })),
+    [zone, router]
+  );
 
   const breadcrumbItems = [
     { label: 'Mapa Principal', href: '/' },
@@ -41,9 +47,10 @@ export function ZoneView({ zone }: ZoneViewProps) {
       <main className="flex-1 overflow-hidden relative">
         {/* Background Image */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url(${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/backgrounds/${zone.slug}.jpg)`,
+            opacity: 0.6,
           }}
         />
 
@@ -52,7 +59,6 @@ export function ZoneView({ zone }: ZoneViewProps) {
           <InteractiveSVG
             svgUrl={zone.svgPath}
             entities={entityConfigs}
-            level="zone"
           />
         </div>
       </main>

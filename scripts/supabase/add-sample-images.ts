@@ -92,21 +92,9 @@ async function addSampleImages() {
     console.log(`   ⏭️  Not found: ${notFound} lots`);
 
     if (notFound > 0) {
-      console.log('\n💡 To add images to Supabase Storage:');
-      console.log('   1. Go to: https://supabase.com/dashboard/project/wjarjmsswpphqvslzozy/storage/buckets/images');
-      console.log('   2. Upload images with structure:');
-      console.log('      - zona-a/manzana-1/lote-01-main.jpg');
-      console.log('      - zona-a/manzana-1/lote-02-main.jpg');
-      console.log('      - ...');
-      console.log('   3. Run this script again to link them');
-    }
-
-    if (updated > 0) {
-      console.log('\n🧪 To test Progressive Loading:');
-      console.log('   1. Navigate to a manzana with images');
-      console.log('   2. Click on a lot');
-      console.log('   3. Watch the image load progressively');
-      console.log('   4. Open browser console to see cache stats');
+      console.log('\n💡 To upload missing images, run:');
+      console.log('   npm run db:upload-all');
+      console.log('   npm run db:add-images');
     }
   } catch (error) {
     console.error('❌ Error adding images:', error);

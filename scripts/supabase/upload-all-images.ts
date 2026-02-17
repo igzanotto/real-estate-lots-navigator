@@ -84,26 +84,37 @@ async function uploadAllImages() {
     ];
 
     // Block backgrounds (14 total: 4+4+6)
-    const blockBackgrounds = [
-      // Zona A blocks (4)
-      ...Array.from({ length: 4 }, (_, i) => ({
-        path: `backgrounds/zona-a-manzana-${i + 1}.jpg`,
-        url: `https://images.unsplash.com/photo-${1560518883 + i * 100}?w=1920&h=1080&fit=crop&q=80`,
-        desc: `Zona A - Manzana ${i + 1}`
-      })),
-      // Zona B blocks (4)
-      ...Array.from({ length: 4 }, (_, i) => ({
-        path: `backgrounds/zona-b-manzana-${i + 1}.jpg`,
-        url: `https://images.unsplash.com/photo-${1600596542 + i * 100}?w=1920&h=1080&fit=crop&q=80`,
-        desc: `Zona B - Manzana ${i + 1}`
-      })),
-      // Zona C blocks (6)
-      ...Array.from({ length: 6 }, (_, i) => ({
-        path: `backgrounds/zona-c-manzana-${i + 1}.jpg`,
-        url: `https://images.unsplash.com/photo-${1605276374 + i * 100}?w=1920&h=1080&fit=crop&q=80`,
-        desc: `Zona C - Manzana ${i + 1}`
-      })),
+    const blockImageUrls = [
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1920&h=1080&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1920&h=1080&fit=crop&q=80',
     ];
+
+    const blockConfigs = [
+      { zone: 'a', count: 4 },
+      { zone: 'b', count: 4 },
+      { zone: 'c', count: 6 },
+    ];
+
+    let urlIdx = 0;
+    const blockBackgrounds = blockConfigs.flatMap(({ zone, count }) =>
+      Array.from({ length: count }, (_, i) => ({
+        path: `backgrounds/zona-${zone}-manzana-${i + 1}.jpg`,
+        url: blockImageUrls[urlIdx++ % blockImageUrls.length],
+        desc: `Zona ${zone.toUpperCase()} - Manzana ${i + 1}`,
+      }))
+    );
 
     const allBackgrounds = [...backgrounds, ...blockBackgrounds];
 
@@ -117,7 +128,7 @@ async function uploadAllImages() {
         } else {
           failed++;
         }
-      } catch (error) {
+      } catch {
         console.error(`  ❌ Failed: ${bg.path}`);
         failed++;
       }
@@ -171,7 +182,7 @@ async function uploadAllImages() {
             } else {
               failed++;
             }
-          } catch (error) {
+          } catch {
             failed++;
           }
         }
