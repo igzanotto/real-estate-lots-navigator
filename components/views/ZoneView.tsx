@@ -38,12 +38,23 @@ export function ZoneView({ zone }: ZoneViewProps) {
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden">
-        <InteractiveSVG
-          svgUrl={zone.svgPath}
-          entities={entityConfigs}
-          level="zone"
+      <main className="flex-1 overflow-hidden relative">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+          style={{
+            backgroundImage: `url(${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/backgrounds/${zone.slug}.jpg)`,
+          }}
         />
+
+        {/* SVG Overlay */}
+        <div className="relative z-10">
+          <InteractiveSVG
+            svgUrl={zone.svgPath}
+            entities={entityConfigs}
+            level="zone"
+          />
+        </div>
       </main>
 
       <footer className="bg-white border-t border-gray-200 p-4">

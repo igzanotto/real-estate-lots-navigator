@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/seed.ts"
+    "db:seed": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/seed.ts",
+    "db:upload-images": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/upload-sample-images.ts",
+    "db:upload-all": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/upload-all-images.ts",
+    "db:add-images": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/add-sample-images.ts",
+    "db:remove-images": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/remove-sample-images.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
