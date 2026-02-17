@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/seed.ts"
+    "db:seed": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/seed.ts",
+    "db:migrate": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/migrate-data.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Navegador de Lotes Inmobiliarios",
-  description: "Explora lotes disponibles organizados por zonas y manzanas",
+  title: "Explorador Inmobiliario",
+  description: "Explora proyectos inmobiliarios: loteos, edificios y más",
 };
 
 export default function RootLayout({

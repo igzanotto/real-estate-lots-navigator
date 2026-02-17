@@ -1,209 +1,208 @@
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import { EntityStatus } from '../../types/hierarchy.types';
 
-// Load environment variables from .env.local
+/**
+ * Seed the new schema (projects/layers/media) with sample data.
+ * Creates a subdivision project similar to the original data.
+ *
+ * Usage: npx tsx scripts/supabase/seed.ts
+ */
+
 config({ path: '.env.local' });
 
-// Initialize Supabase client with service role key for admin operations
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('Missing Supabase credentials in environment variables');
+  console.error('Missing Supabase credentials');
   process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-/**
- * Generate 8 lots for a block (4 rows × 2 columns)
- */
-function generateLotsData(zoneLetter: string, blockNum: number, zoneDbId: string, blockDbId: string) {
-  const lots: Record<string, unknown>[] = [];
-  const blockSlug = `zona-${zoneLetter.toLowerCase()}-manzana-${blockNum}`;
+type Status = 'available' | 'reserved' | 'sold' | 'not_available';
 
-  for (let i = 1; i <= 8; i++) {
-    const lotNum = i.toString().padStart(2, '0');
-    const lotSlug = `${blockSlug}-lote-${lotNum}`;
+function generateLotProperties(lotIndex: number, zoneLetter: string, isCorner: boolean): Record<string, unknown> {
+  const baseArea = 280;
+  const variation = (lotIndex % 8) * 10;
+  const area = baseArea + variation;
 
-    // Simulate different statuses
-    let status: EntityStatus = 'available';
-    if (i % 5 === 0) status = 'sold';
-    else if (i % 3 === 0) status = 'reserved';
-    else if (i % 7 === 0) status = 'not_available';
+  const status = getLotStatus(lotIndex);
+  const pricePerSqm = isCorner ? 90 : 70;
+  const price = status === 'sold' ? null : area * pricePerSqm;
 
-    // Corner lots: corners of 4x2 grid (positions 1, 2, 7, 8)
-    const isCorner = i === 1 || i === 2 || i === 7 || i === 8;
+  const frontMeters = isCorner ? 12 + (lotIndex % 3) : 10 + (lotIndex % 3);
+  const depthMeters = Math.round(area / frontMeters);
 
-    // Base area: 250-350 m² with variation
-    const baseArea = 280;
-    const variation = (i % 8) * 10;
-    const area = baseArea + variation;
+  const orientations = ['Norte', 'Sur', 'Este', 'Oeste', 'Noreste', 'Noroeste'];
+  const orientation = orientations[lotIndex % orientations.length];
 
-    // Price: $60-90 per m² depending on status and corner
-    const pricePerSqm = isCorner ? 90 : 70;
-    const price = status === 'sold' ? null : area * pricePerSqm;
+  const baseFeatures = ['Agua potable', 'Electricidad', 'Alumbrado público', 'Acceso pavimentado'];
+  const premiumFeatures = ['Gas natural', 'Cloacas', 'Fibra óptica', 'Seguridad 24hs'];
+  const features = isCorner || status === 'available'
+    ? [...baseFeatures, ...premiumFeatures.slice(0, 2)]
+    : baseFeatures;
 
-    // Dimensions
-    const frontMeters = isCorner ? 12 + (i % 3) : 10 + (i % 3);
-    const depthMeters = Math.round(area / frontMeters);
+  const descriptions = [
+    `Excelente lote ubicado en Zona ${zoneLetter}, ideal para construcción de vivienda familiar.`,
+    `Terreno con excelente ubicación y orientación ${orientation.toLowerCase()}.`,
+    `Lote ${isCorner ? 'de esquina ' : ''}con todos los servicios disponibles.`,
+    `Propiedad en zona residencial de alto desarrollo, perfecta para inversión.`,
+  ];
 
-    // Orientation (varies by position)
-    const orientations = ['Norte', 'Sur', 'Este', 'Oeste', 'Noreste', 'Noroeste'];
-    const orientation = orientations[i % orientations.length];
-
-    // Features (more for available lots)
-    const baseFeatures = [
-      'Agua potable',
-      'Electricidad',
-      'Alumbrado público',
-      'Acceso pavimentado',
-    ];
-    const premiumFeatures = [
-      'Gas natural',
-      'Cloacas',
-      'Fibra óptica',
-      'Seguridad 24hs',
-    ];
-    const features = isCorner || status === 'available'
-      ? [...baseFeatures, ...premiumFeatures.slice(0, 2)]
-      : baseFeatures;
-
-    // Description
-    const descriptions = [
-      `Excelente lote ubicado en ${zoneLetter.toUpperCase()}, ideal para construcción de vivienda familiar.`,
-      `Terreno con excelente ubicación y orientación ${orientation.toLowerCase()}.`,
-      `Lote ${isCorner ? 'de esquina ' : ''}con todos los servicios disponibles.`,
-      `Propiedad en zona residencial de alto desarrollo, perfecta para inversión.`,
-    ];
-    const description = descriptions[i % descriptions.length];
-
-    lots.push({
-      zone_id: zoneDbId,
-      block_id: blockDbId,
-      slug: lotSlug,
-      name: `Lote ${i}`,
-      label: `L${i}`,
-      status,
-      area,
-      price,
-      is_corner: isCorner,
-      description,
-      front_meters: frontMeters,
-      depth_meters: depthMeters,
-      orientation,
-      features: JSON.stringify(features),
-    });
-  }
-
-  return lots;
+  return {
+    area,
+    price,
+    is_corner: isCorner,
+    front_meters: frontMeters,
+    depth_meters: depthMeters,
+    orientation,
+    features,
+    description: descriptions[lotIndex % descriptions.length],
+  };
 }
 
-/**
- * Seed the database with initial data
- */
-async function seedDatabase() {
-  console.log('🌱 Starting database seed...\n');
+function getLotStatus(index: number): Status {
+  if (index % 5 === 0) return 'sold';
+  if (index % 3 === 0) return 'reserved';
+  if (index % 7 === 0) return 'not_available';
+  return 'available';
+}
 
-  try {
-    // Clear existing data (in reverse order due to foreign keys)
-    console.log('🗑️  Clearing existing data...');
-    await supabase.from('lots').delete().not('id', 'is', null);
-    await supabase.from('blocks').delete().not('id', 'is', null);
-    await supabase.from('zones').delete().not('id', 'is', null);
-    console.log('✅ Existing data cleared\n');
+async function seed() {
+  console.log('Starting seed...\n');
 
-    // Seed Zones
-    console.log('📍 Seeding zones...');
-    const zonesData = [
-      {
-        slug: 'zona-a',
-        name: 'Zona A',
-        label: 'Zona A',
-        status: 'available' as EntityStatus,
-        svg_path: '/svgs/zonas/zona-a.svg',
-      },
-      {
-        slug: 'zona-b',
-        name: 'Zona B',
-        label: 'Zona B',
-        status: 'available' as EntityStatus,
-        svg_path: '/svgs/zonas/zona-b.svg',
-      },
-      {
-        slug: 'zona-c',
-        name: 'Zona C',
-        label: 'Zona C',
-        status: 'available' as EntityStatus,
-        svg_path: '/svgs/zonas/zona-c.svg',
-      },
-    ];
+  // Clear existing data
+  console.log('Clearing existing data...');
+  await supabase.from('media').delete().not('id', 'is', null);
+  await supabase.from('layers').delete().not('id', 'is', null);
+  await supabase.from('projects').delete().not('id', 'is', null);
+  console.log('  Done\n');
 
-    const { data: zones, error: zonesError } = await supabase
-      .from('zones')
-      .insert(zonesData)
-      .select();
+  // Create subdivision project
+  console.log('Creating subdivision project...');
+  const { data: project, error: projectError } = await supabase
+    .from('projects')
+    .insert({
+      slug: 'los-alamos',
+      name: 'Los Álamos',
+      description: 'Desarrollo residencial con lotes en 3 zonas',
+      type: 'subdivision',
+      status: 'available',
+      layer_labels: ['Zona', 'Manzana', 'Lote'],
+      max_depth: 3,
+      svg_path: '/svgs/mapa-principal.svg',
+      city: 'Ciudad Ejemplo',
+      state: 'Provincia Ejemplo',
+      country: 'Argentina',
+    })
+    .select()
+    .single();
 
-    if (zonesError) throw zonesError;
-    console.log(`✅ Created ${zones.length} zones\n`);
+  if (projectError) throw projectError;
+  console.log(`  Created: ${project.name}\n`);
 
-    // Seed Blocks and Lots
-    const zoneConfig = [
-      { letter: 'A', dbZone: zones[0], blockCount: 4 },
-      { letter: 'B', dbZone: zones[1], blockCount: 4 },
-      { letter: 'C', dbZone: zones[2], blockCount: 6 },
-    ];
+  // Zone config
+  const zoneConfig = [
+    { letter: 'A', blockCount: 4 },
+    { letter: 'B', blockCount: 4 },
+    { letter: 'C', blockCount: 6 },
+  ];
 
-    let totalBlocks = 0;
-    let totalLots = 0;
+  let totalLayers = 0;
 
-    for (const { letter, dbZone, blockCount } of zoneConfig) {
-      console.log(`📦 Seeding blocks for Zona ${letter}...`);
+  for (const { letter, blockCount } of zoneConfig) {
+    const zoneSlug = `zona-${letter.toLowerCase()}`;
 
-      for (let i = 1; i <= blockCount; i++) {
-        const blockSlug = `zona-${letter.toLowerCase()}-manzana-${i}`;
-        const blockData = {
-          zone_id: dbZone.id,
+    // Create zone layer (depth 0)
+    const { data: zoneLayer, error: zoneError } = await supabase
+      .from('layers')
+      .insert({
+        project_id: project.id,
+        parent_id: null,
+        depth: 0,
+        sort_order: letter.charCodeAt(0) - 65,
+        slug: zoneSlug,
+        name: `Zona ${letter}`,
+        label: `Zona ${letter}`,
+        svg_element_id: zoneSlug,
+        status: 'available',
+        svg_path: `/svgs/zonas/${zoneSlug}.svg`,
+        properties: {},
+      })
+      .select()
+      .single();
+
+    if (zoneError) throw zoneError;
+    totalLayers++;
+    console.log(`  Zone: ${zoneSlug}`);
+
+    // Create block layers (depth 1)
+    for (let b = 1; b <= blockCount; b++) {
+      const blockSlug = `${zoneSlug}-manzana-${b}`;
+      const svgElementId = `manzana-${b}`;
+
+      const { data: blockLayer, error: blockError } = await supabase
+        .from('layers')
+        .insert({
+          project_id: project.id,
+          parent_id: zoneLayer.id,
+          depth: 1,
+          sort_order: b - 1,
           slug: blockSlug,
-          name: `Manzana ${i}`,
-          label: `M${i}`,
-          status: 'available' as EntityStatus,
+          name: `Manzana ${b}`,
+          label: `M${b}`,
+          svg_element_id: svgElementId,
+          status: 'available',
           svg_path: `/svgs/manzanas/${blockSlug}.svg`,
-        };
+          properties: {},
+        })
+        .select()
+        .single();
 
-        const { data: block, error: blockError } = await supabase
-          .from('blocks')
-          .insert(blockData)
-          .select()
-          .single();
+      if (blockError) throw blockError;
+      totalLayers++;
 
-        if (blockError) throw blockError;
-        totalBlocks++;
+      // Create lot layers (depth 2)
+      const lotsToInsert = [];
+      for (let l = 1; l <= 8; l++) {
+        const lotNum = l.toString().padStart(2, '0');
+        const lotSlug = `${blockSlug}-lote-${lotNum}`;
+        const isCorner = l === 1 || l === 2 || l === 7 || l === 8;
+        const status = getLotStatus(l);
 
-        // Generate and insert lots for this block
-        const lotsData = generateLotsData(letter, i, dbZone.id, block.id);
-        const { error: lotsError } = await supabase.from('lots').insert(lotsData);
-
-        if (lotsError) throw lotsError;
-        totalLots += lotsData.length;
-
-        console.log(`  ✅ Created block ${blockSlug} with ${lotsData.length} lots`);
+        lotsToInsert.push({
+          project_id: project.id,
+          parent_id: blockLayer.id,
+          depth: 2,
+          sort_order: l - 1,
+          slug: lotSlug,
+          name: `Lote ${l}`,
+          label: `L${l}`,
+          svg_element_id: `lote-${lotNum}`,
+          status,
+          svg_path: null,
+          properties: generateLotProperties(l, letter, isCorner),
+        });
       }
-      console.log();
-    }
 
-    console.log('🎉 Database seeded successfully!');
-    console.log(`\n📊 Summary:`);
-    console.log(`   Zones: ${zones.length}`);
-    console.log(`   Blocks: ${totalBlocks}`);
-    console.log(`   Lots: ${totalLots}`);
-    console.log(`\n✨ Total: ${totalLots} lots across ${totalBlocks} blocks in ${zones.length} zones`);
-  } catch (error) {
-    console.error('❌ Error seeding database:', error);
-    process.exit(1);
+      const { error: lotsError } = await supabase.from('layers').insert(lotsToInsert);
+      if (lotsError) throw lotsError;
+      totalLayers += lotsToInsert.length;
+
+      console.log(`    Block: ${blockSlug} (${lotsToInsert.length} lots)`);
+    }
   }
+
+  console.log(`\nSeed complete!`);
+  console.log(`  Project: ${project.name}`);
+  console.log(`  Total layers: ${totalLayers}`);
+  console.log(`    Zones: ${zoneConfig.length}`);
+  console.log(`    Blocks: ${zoneConfig.reduce((sum, z) => sum + z.blockCount, 0)}`);
+  console.log(`    Lots: ${zoneConfig.reduce((sum, z) => sum + z.blockCount * 8, 0)}`);
 }
 
-// Run the seed function
-seedDatabase();
+seed().catch((err) => {
+  console.error('Seed failed:', err);
+  process.exit(1);
+});
