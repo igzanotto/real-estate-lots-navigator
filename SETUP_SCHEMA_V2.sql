@@ -229,3 +229,31 @@ COMMENT ON COLUMN layers.depth IS 'Position in hierarchy: 0=first level, up to 3
 COMMENT ON COLUMN layers.svg_element_id IS 'Element ID within the parent SVG that represents this layer';
 COMMENT ON COLUMN layers.properties IS 'Flexible JSON properties varying by project type and depth';
 COMMENT ON COLUMN media.purpose IS 'How the media is used: cover, gallery, exploration view, transition animation, thumbnail, floor plan';
+
+-- ============================================================
+-- ADMIN WRITE POLICIES (authenticated users only)
+-- ============================================================
+
+-- Projects
+CREATE POLICY "Authenticated can insert projects" ON projects FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Authenticated can update projects" ON projects FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Authenticated can delete projects" ON projects FOR DELETE TO authenticated USING (true);
+
+-- Layers
+CREATE POLICY "Authenticated can insert layers" ON layers FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Authenticated can update layers" ON layers FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Authenticated can delete layers" ON layers FOR DELETE TO authenticated USING (true);
+
+-- Media
+CREATE POLICY "Authenticated can insert media" ON media FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Authenticated can update media" ON media FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Authenticated can delete media" ON media FOR DELETE TO authenticated USING (true);
+
+-- ============================================================
+-- STORAGE POLICIES (project-media bucket)
+-- ============================================================
+
+CREATE POLICY "Authenticated can upload" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'project-media');
+CREATE POLICY "Authenticated can update files" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'project-media') WITH CHECK (bucket_id = 'project-media');
+CREATE POLICY "Authenticated can delete files" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'project-media');
+CREATE POLICY "Public can read files" ON storage.objects FOR SELECT USING (bucket_id = 'project-media');
