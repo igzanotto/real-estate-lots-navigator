@@ -11,18 +11,19 @@ interface LayerPageProps {
 export default async function LayerPage({ params }: LayerPageProps) {
   const { projectSlug, layers } = await params;
 
+  let data;
   try {
-    const data = await getExplorerPageData(projectSlug, layers);
-
-    // Leaf layer (no children) → full detail page with gallery
-    if (data.children.length === 0 && data.currentLayer) {
-      return <UnitPage data={data} />;
-    }
-
-    return <ExplorerView data={data} />;
+    data = await getExplorerPageData(projectSlug, layers);
   } catch {
     notFound();
   }
+
+  // Leaf layer (no children) → full detail page with gallery
+  if (data.children.length === 0 && data.currentLayer) {
+    return <UnitPage data={data} />;
+  }
+
+  return <ExplorerView data={data} />;
 }
 
 export async function generateStaticParams() {

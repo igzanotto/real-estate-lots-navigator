@@ -49,8 +49,6 @@ export interface Layer {
   buyerNotes?: string;
   reservedAt?: string;
   soldAt?: string;
-  // Populated by data layer
-  children?: Layer[];
 }
 
 export interface Media {
@@ -93,34 +91,3 @@ export interface ExplorerPageData {
   siblings: Layer[];              // layers sharing the same parent (includes current)
 }
 
-// ============================================================
-// Subdivision-specific property helpers
-// ============================================================
-
-export interface SubdivisionLotProperties {
-  area?: number;
-  price?: number;
-  is_corner?: boolean;
-  front_meters?: number;
-  depth_meters?: number;
-  orientation?: string;
-  features?: string[];
-  description?: string;
-}
-
-// ============================================================
-// Building-specific property helpers
-// ============================================================
-
-export interface BuildingUnitProperties {
-  area?: number;
-  price?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  floor_number?: number;
-  unit_type?: string;
-  has_balcony?: boolean;
-  orientation?: string;
-  features?: string[];
-  description?: string;
-}

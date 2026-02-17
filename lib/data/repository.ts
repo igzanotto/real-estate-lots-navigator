@@ -46,8 +46,12 @@ export async function getExplorerPageData(
       .order('sort_order'),
   ]);
 
-  if (layersResult.error) throw layersResult.error;
-  if (mediaResult.error) throw mediaResult.error;
+  if (layersResult.error) {
+    throw new Error(`Failed to fetch layers for project "${projectSlug}": ${layersResult.error.message}`);
+  }
+  if (mediaResult.error) {
+    throw new Error(`Failed to fetch media for project "${projectSlug}": ${mediaResult.error.message}`);
+  }
 
   return buildExplorerPageData(
     rawProject,
@@ -68,6 +72,8 @@ export async function getProjects(): Promise<Project[]> {
     .select('*')
     .order('name');
 
-  if (error) throw error;
+  if (error) {
+    throw new Error(`Failed to fetch projects: ${error.message}`);
+  }
   return (data as RawProject[]).map(transformProject);
 }

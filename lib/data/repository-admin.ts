@@ -45,8 +45,12 @@ export async function getExplorerPageDataAdmin(
       .order('sort_order'),
   ]);
 
-  if (layersResult.error) throw layersResult.error;
-  if (mediaResult.error) throw mediaResult.error;
+  if (layersResult.error) {
+    throw new Error(`Failed to fetch layers for project "${projectSlug}": ${layersResult.error.message}`);
+  }
+  if (mediaResult.error) {
+    throw new Error(`Failed to fetch media for project "${projectSlug}": ${mediaResult.error.message}`);
+  }
 
   return buildExplorerPageData(
     rawProject,
@@ -58,6 +62,7 @@ export async function getExplorerPageDataAdmin(
 
 /**
  * Get all project slugs for generateStaticParams.
+ * Returns empty array on failure to avoid breaking the build.
  */
 export async function getProjectSlugsAdmin(): Promise<string[]> {
   const supabase = createAdminClient();
@@ -67,8 +72,8 @@ export async function getProjectSlugsAdmin(): Promise<string[]> {
     .select('slug')
     .order('slug');
 
-  if (error) throw error;
-  return (data ?? []).map((p) => p.slug);
+  if (error || !data) return [];
+  return data.map((p) => p.slug);
 }
 
 /**
@@ -82,10 +87,12 @@ export async function getLayerPathsAdmin(
 
   const { data: project, error: projectError } = await supabase
     .from('projects')
-    .select('id, max_depth')
+    .select('id')
     .eq('slug', projectSlug)
     .single();
 
+  // Silent failure is intentional: static generation should not break the build
+  // if a project is missing or has no layers.
   if (projectError || !project) return [];
 
   const { data: layers, error: layersError } = await supabase
@@ -97,7 +104,7 @@ export async function getLayerPathsAdmin(
 
   if (layersError || !layers) return [];
 
-  return generateAllLayerPaths(layers as RawLayer[], project.max_depth);
+  return generateAllLayerPaths(layers as RawLayer[]);
 }
 
 /**
@@ -111,6 +118,8 @@ export async function getProjectsAdmin(): Promise<Project[]> {
     .select('*')
     .order('name');
 
-  if (error) throw error;
+  if (error) {
+    throw new Error(`Failed to fetch projects: ${error.message}`);
+  }
   return (data as RawProject[]).map(transformProject);
 }

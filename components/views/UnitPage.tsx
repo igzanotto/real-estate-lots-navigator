@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ExplorerPageData, Media } from '@/types/hierarchy.types';
+import { ExplorerPageData, Layer, Media } from '@/types/hierarchy.types';
 import { Breadcrumb } from '@/components/navigation/Breadcrumb';
 import { STATUS_LABELS, STATUS_CLASSES } from '@/lib/constants/status';
 
@@ -13,6 +13,12 @@ interface UnitPageProps {
 export function UnitPage({ data }: UnitPageProps) {
   const router = useRouter();
   const { project, currentLayer, media, breadcrumbs, siblings, currentPath } = data;
+
+  // Navigate to sibling unit
+  const navigateToSibling = useCallback((sibling: Layer) => {
+    const siblingPath = [...currentPath.slice(0, -1), sibling.slug];
+    router.push(`/p/${project.slug}/${siblingPath.join('/')}`);
+  }, [currentPath, project.slug, router]);
 
   if (!currentLayer) return null;
 
@@ -33,12 +39,6 @@ export function UnitPage({ data }: UnitPageProps) {
   const unitType = props.unit_type as string | undefined;
   const hasBalcony = props.has_balcony as boolean | undefined;
   const floorNumber = props.floor_number as number | undefined;
-
-  // Navigate to sibling unit
-  const navigateToSibling = useCallback((sibling: typeof siblings[0]) => {
-    const siblingPath = [...currentPath.slice(0, -1), sibling.slug];
-    router.push(`/p/${project.slug}/${siblingPath.join('/')}`);
-  }, [currentPath, project.slug, router]);
 
   return (
     <div className="min-h-screen bg-gray-50">

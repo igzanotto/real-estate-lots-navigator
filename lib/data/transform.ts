@@ -227,8 +227,7 @@ export function buildExplorerPageData(
 // ============================================================
 
 export function generateAllLayerPaths(
-  rawLayers: RawLayer[],
-  maxDepth: number
+  rawLayers: RawLayer[]
 ): string[][] {
   const paths: string[][] = [];
 

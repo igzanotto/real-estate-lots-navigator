@@ -10,12 +10,14 @@ interface ProjectPageProps {
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { projectSlug } = await params;
 
+  let data;
   try {
-    const data = await getExplorerPageData(projectSlug, []);
-    return <ExplorerView data={data} />;
+    data = await getExplorerPageData(projectSlug, []);
   } catch {
     notFound();
   }
+
+  return <ExplorerView data={data} />;
 }
 
 export async function generateStaticParams() {
