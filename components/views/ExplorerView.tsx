@@ -1,12 +1,11 @@
 'use client';
 
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ExplorerPageData, Layer, Media } from '@/types/hierarchy.types';
+import { ExplorerPageData, Layer } from '@/types/hierarchy.types';
 import { InteractiveSVG } from '@/components/svg/InteractiveSVG';
 import { Breadcrumb } from '@/components/navigation/Breadcrumb';
 import { SiblingNavigator } from '@/components/navigation/SiblingNavigator';
-import { LayerDetailPanel } from '@/components/views/LayerDetailPanel';
 import { svgElementId } from '@/lib/utils/slug-helpers';
 
 interface ExplorerViewProps {
@@ -15,61 +14,29 @@ interface ExplorerViewProps {
 
 export function ExplorerView({ data }: ExplorerViewProps) {
   const router = useRouter();
-  const { project, currentLayer, children, breadcrumbs, isLeafLevel, currentPath, childrenMedia, siblings } = data;
-
-  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
-
-  // Reset selection when navigating to a new layer
-  useEffect(() => {
-    setSelectedLayerId(null);
-  }, [currentLayer?.id]);
-
-  const selectedChild = selectedLayerId
-    ? children.find((c) => c.id === selectedLayerId)
-    : null;
-
-  const selectedChildMedia: Media[] = selectedLayerId
-    ? (childrenMedia[selectedLayerId] ?? [])
-    : [];
+  const { project, currentLayer, children, breadcrumbs, currentPath, siblings, isLeafLevel } = data;
 
   // Build the base URL for navigation
   const basePath = `/p/${project.slug}${currentPath.length > 0 ? '/' + currentPath.join('/') : ''}`;
 
-  // The SVG to display: currentLayer's SVG or project's root SVG
+  // The SVG to display
   const svgUrl = currentLayer?.svgPath ?? project.svgPath;
 
-  // Layer label for the subtitle
+  // Layer labels
   const childDepth = currentLayer ? currentLayer.depth + 1 : 0;
   const childLabel = project.layerLabels[childDepth] ?? 'elemento';
   const currentLabel = project.layerLabels[currentLayer?.depth ?? -1] ?? '';
 
-  // Show sibling navigator when we have siblings and are at leaf level
+  // Show sibling navigator when we have siblings and children are leaves
   const showSiblings = isLeafLevel && siblings.length > 1 && currentLayer != null;
 
-  // Navigate to a sibling (e.g., switch floors)
   const handleSiblingSelect = useCallback((sibling: Layer) => {
     if (sibling.id === currentLayer?.id) return;
-    // Replace last slug in path with sibling's slug
     const siblingPath = [...currentPath.slice(0, -1), sibling.slug];
     router.push(`/p/${project.slug}/${siblingPath.join('/')}`);
   }, [currentLayer?.id, currentPath, project.slug, router]);
 
-  // Prefetch adjacent children media
-  const prefetchMedia = useCallback((layerId: string) => {
-    const idx = children.findIndex((c) => c.id === layerId);
-    if (idx === -1) return;
-    [children[idx - 1], children[idx + 1]]
-      .filter(Boolean)
-      .forEach((child) => {
-        const coverMedia = childrenMedia[child.id]?.find(
-          (m) => (m.purpose === 'cover' || m.purpose === 'gallery') && m.type === 'image'
-        );
-        if (coverMedia?.url) {
-          fetch(coverMedia.url).catch(() => {});
-        }
-      });
-  }, [children, childrenMedia]);
-
+  // Always navigate on click
   const entityConfigs = useMemo(
     () =>
       children.map((child) => ({
@@ -77,28 +44,16 @@ export function ExplorerView({ data }: ExplorerViewProps) {
         label: child.label,
         status: child.status,
         onClick: () => {
-          if (isLeafLevel) {
-            setSelectedLayerId(child.id);
-            setTimeout(() => prefetchMedia(child.id), 500);
-          } else {
-            router.push(`${basePath}/${child.slug}`);
-          }
+          router.push(`${basePath}/${child.slug}`);
         },
       })),
-    [children, isLeafLevel, basePath, router, prefetchMedia]
+    [children, basePath, router]
   );
 
   const availableCount = children.filter((c) => c.status === 'available').length;
+  const title = currentLayer ? currentLayer.name : project.name;
+  const subtitle = `Selecciona un ${childLabel.toLowerCase()} para explorar`;
 
-  const title = currentLayer
-    ? currentLayer.name
-    : project.name;
-
-  const subtitle = isLeafLevel
-    ? `Haz clic en un ${childLabel.toLowerCase()} para ver información detallada`
-    : `Selecciona un ${childLabel.toLowerCase()} para explorar`;
-
-  // Background image from exploration media
   const explorationMedia = data.media.find(
     (m) => m.purpose === 'exploration' && m.type === 'image'
   );
@@ -115,7 +70,6 @@ export function ExplorerView({ data }: ExplorerViewProps) {
       </header>
 
       <main className="flex-1 overflow-hidden flex">
-        {/* SVG map area */}
         <div className="flex-1 relative">
           {backgroundUrl && (
             <div
@@ -134,17 +88,6 @@ export function ExplorerView({ data }: ExplorerViewProps) {
           </div>
         </div>
 
-        {/* Detail panel (when a leaf child is selected) */}
-        {selectedChild && (
-          <LayerDetailPanel
-            layer={selectedChild}
-            media={selectedChildMedia}
-            projectType={project.type}
-            onClose={() => setSelectedLayerId(null)}
-          />
-        )}
-
-        {/* Sibling navigator (e.g., floor switcher) */}
         {showSiblings && currentLayer && (
           <SiblingNavigator
             siblings={siblings}

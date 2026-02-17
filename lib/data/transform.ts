@@ -239,11 +239,7 @@ export function generateAllLayerPaths(
 
     for (const child of children) {
       const newPath = [...currentPath, child.slug];
-      // Only generate pages for non-leaf layers (layers whose children have children)
-      // and for layers at max_depth - 2 (whose children are leaves shown in detail panel)
-      if (child.depth < maxDepth - 1) {
-        paths.push(newPath);
-      }
+      paths.push(newPath);
       walk(child.id, newPath);
     }
   }
