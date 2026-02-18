@@ -22,6 +22,7 @@ const VIEWPOINT_SVG: Record<ViewpointId, string> = {
 export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
   const [currentViewpoint, setCurrentViewpoint] = useState<ViewpointId>('home');
   const [phase, setPhase] = useState<'idle' | 'transitioning'>('idle');
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const [transitionVideoUrl, setTransitionVideoUrl] = useState<string | null>(null);
   const onVideoEndRef = useRef<(() => void) | null>(null);
   const svgContainerRef = useRef<HTMLDivElement>(null);
@@ -137,11 +138,13 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
 
       const video = findTransitionVideo(currentViewpoint, target);
       if (video?.url) {
+        setVideoPlaying(false);
         setPhase('transitioning');
         setTransitionVideoUrl(video.url);
         onVideoEndRef.current = () => {
           setCurrentViewpoint(target);
           setPhase('idle');
+          setVideoPlaying(false);
           setTransitionVideoUrl(null);
         };
       } else {
@@ -158,23 +161,31 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
   const nextIdx = (currentIdx + 1) % VIEWPOINT_ORDER.length;
   const prevIdx = (currentIdx - 1 + VIEWPOINT_ORDER.length) % VIEWPOINT_ORDER.length;
 
+  const showImage = phase === 'idle' || !videoPlaying;
+
   return (
     <div className="relative w-full h-full">
-      {phase === 'transitioning' && transitionVideoUrl ? (
-        <VideoPlayer
-          src={transitionVideoUrl}
-          autoPlay
-          muted
-          controls={false}
-          onEnded={() => onVideoEndRef.current?.()}
-          className="w-full h-full"
-        />
-      ) : (
+      {/* Transition video (renders underneath image until playing) */}
+      {phase === 'transitioning' && transitionVideoUrl && (
+        <div className="absolute inset-0">
+          <VideoPlayer
+            src={transitionVideoUrl}
+            autoPlay
+            muted
+            controls={false}
+            onPlaying={() => setVideoPlaying(true)}
+            onEnded={() => onVideoEndRef.current?.()}
+            className="w-full h-full"
+          />
+        </div>
+      )}
+
+      {/* Background image — stays visible until video is playing */}
+      {showImage && (
         <>
-          {/* Background image */}
           {currentImageUrl && (
             <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat z-10"
               style={{ backgroundImage: `url(${currentImageUrl})` }}
             />
           )}

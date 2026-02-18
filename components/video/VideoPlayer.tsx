@@ -10,6 +10,7 @@ interface VideoPlayerProps {
   muted?: boolean;
   controls?: boolean;
   onEnded?: () => void;
+  onPlaying?: () => void;
   className?: string;
 }
 
@@ -21,6 +22,7 @@ export function VideoPlayer({
   muted = false,
   controls = true,
   onEnded,
+  onPlaying,
   className = '',
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -28,7 +30,7 @@ export function VideoPlayer({
 
   return (
     <div className={`relative bg-black ${className}`}>
-      {isLoading && (
+      {isLoading && !onPlaying && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="animate-pulse text-white/60 text-sm">Cargando video...</div>
         </div>
@@ -43,6 +45,7 @@ export function VideoPlayer({
         controls={controls}
         playsInline
         onLoadedData={() => setIsLoading(false)}
+        onPlaying={onPlaying}
         onEnded={onEnded}
         className="w-full h-full object-cover"
       />
