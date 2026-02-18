@@ -6,11 +6,3 @@ export async function getAuthUser() {
   if (error || !user) return null;
   return user;
 }
-
-export async function requireAuth() {
-  const user = await getAuthUser();
-  if (!user) {
-    throw new Error('No autorizado');
-  }
-  return user;
-}

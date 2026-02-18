@@ -6,7 +6,6 @@ import { ExplorerPageData, Layer } from '@/types/hierarchy.types';
 import { InteractiveSVG } from '@/components/svg/InteractiveSVG';
 import { Breadcrumb } from '@/components/navigation/Breadcrumb';
 import { SiblingNavigator } from '@/components/navigation/SiblingNavigator';
-import { svgElementId } from '@/lib/utils/slug-helpers';
 import { STATUS_LABELS, STATUS_DOT_CLASSES } from '@/lib/constants/status';
 import { buttonStyles } from '@/lib/styles/button';
 
@@ -16,7 +15,7 @@ interface ExplorerViewProps {
 
 export function ExplorerView({ data }: ExplorerViewProps) {
   const router = useRouter();
-  const { project, currentLayer, children, breadcrumbs, currentPath, siblings, isLeafLevel } = data;
+  const { project, currentLayer, children, breadcrumbs, currentPath, siblings } = data;
 
   // Build the base URL for navigation
   const basePath = `/p/${project.slug}${currentPath.length > 0 ? '/' + currentPath.join('/') : ''}`;
@@ -42,7 +41,7 @@ export function ExplorerView({ data }: ExplorerViewProps) {
   const entityConfigs = useMemo(
     () =>
       children.map((child) => ({
-        id: svgElementId(child),
+        id: child.svgElementId ?? child.slug,
         label: child.label,
         status: child.status,
         onClick: () => {

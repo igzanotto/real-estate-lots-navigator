@@ -7,11 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/seed.ts",
-    "db:upload-images": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/upload-images.ts",
-    "db:upload-backgrounds": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/upload-backgrounds.ts",
-    "db:seed-aurora": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/seed-aurora.ts",
-    "db:upload-aurora-media": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/upload-aurora-media.ts"
+    "db:seed": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/seed-aurora.ts",
+    "db:upload-media": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/supabase/upload-aurora-media.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",

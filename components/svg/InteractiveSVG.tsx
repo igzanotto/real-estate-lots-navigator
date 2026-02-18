@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { EntityStatus } from '@/types/hierarchy.types';
 import { STATUS_COLORS, STATUS_LABELS } from '@/lib/constants/status';
 
-export interface SVGEntityConfig {
+interface SVGEntityConfig {
   id: string;
   label: string;
   status: EntityStatus;

@@ -1,12 +1,11 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import { ExplorerPageData, Project } from '@/types/hierarchy.types';
+import { ExplorerPageData } from '@/types/hierarchy.types';
 import {
   RawProject,
   RawLayer,
   RawMedia,
   buildExplorerPageData,
   generateAllLayerPaths,
-  transformProject,
 } from './transform';
 
 /**
@@ -107,19 +106,3 @@ export async function getLayerPathsAdmin(
   return generateAllLayerPaths(layers as RawLayer[]);
 }
 
-/**
- * Fetch all projects using admin client.
- */
-export async function getProjectsAdmin(): Promise<Project[]> {
-  const supabase = createAdminClient();
-
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .order('name');
-
-  if (error) {
-    throw new Error(`Failed to fetch projects: ${error.message}`);
-  }
-  return (data as RawProject[]).map(transformProject);
-}
