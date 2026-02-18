@@ -73,9 +73,10 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
         const svg = container.querySelector('svg');
         if (!svg) return;
 
-        // Make responsive & transparent
+        // Make responsive & transparent — match bg-cover behavior
         svg.setAttribute('width', '100%');
         svg.setAttribute('height', '100%');
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
         svg.style.display = 'block';
         svg.style.background = 'transparent';
 
