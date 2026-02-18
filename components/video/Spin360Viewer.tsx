@@ -39,6 +39,19 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
     });
   }, [media]);
 
+  // Preload all transition videos into browser cache
+  useEffect(() => {
+    media.forEach((m) => {
+      if (m.type === 'video' && m.purpose === 'transition' && m.url) {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'video';
+        link.href = m.url;
+        document.head.appendChild(link);
+      }
+    });
+  }, [media]);
+
   // Find transition video between two viewpoints
   const findTransitionVideo = useCallback(
     (from: ViewpointId, to: ViewpointId): Media | undefined => {
@@ -155,20 +168,34 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
     [currentViewpoint, phase, findTransitionVideo]
   );
 
-  const currentVp = viewpoints.find((vp) => vp.id === currentViewpoint);
-  const currentImageUrl = currentVp?.image?.url;
-
   const currentIdx = VIEWPOINT_ORDER.indexOf(currentViewpoint);
   const nextIdx = (currentIdx + 1) % VIEWPOINT_ORDER.length;
   const prevIdx = (currentIdx - 1 + VIEWPOINT_ORDER.length) % VIEWPOINT_ORDER.length;
 
-  const showImage = phase === 'idle' || !videoPlaying;
+  const showOverlay = phase === 'idle' || !videoPlaying;
 
   return (
     <div className="relative w-full h-full">
-      {/* Transition video (renders underneath image until playing) */}
+      {/* All viewpoint images — always mounted, toggled via opacity.
+          Keeping them in the DOM means the browser has them decoded
+          and ready to paint instantly, eliminating the black flash. */}
+      {viewpoints.map((vp) => (
+        <img
+          key={vp.id}
+          src={vp.image?.url}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity: vp.id === currentViewpoint ? 1 : 0,
+            zIndex: vp.id === currentViewpoint ? 5 : 1,
+          }}
+        />
+      ))}
+
+      {/* Transition video — starts behind images (z-1), promoted
+          above (z-10) once the first frame is playing */}
       {phase === 'transitioning' && transitionVideoUrl && (
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" style={{ zIndex: videoPlaying ? 10 : 1 }}>
           <VideoPlayer
             src={transitionVideoUrl}
             autoPlay
@@ -181,16 +208,9 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
         </div>
       )}
 
-      {/* Background image — stays visible until video is playing */}
-      {showImage && (
+      {/* SVG overlay + controls — visible when idle or video hasn't started */}
+      {showOverlay && (
         <>
-          {currentImageUrl && (
-            <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat z-10"
-              style={{ backgroundImage: `url(${currentImageUrl})` }}
-            />
-          )}
-
           {/* SVG overlay (building outline + clickable marker) */}
           <div
             ref={svgContainerRef}
