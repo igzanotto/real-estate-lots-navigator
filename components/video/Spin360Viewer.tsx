@@ -13,12 +13,6 @@ type ViewpointId = 'home' | 'point-a' | 'point-b';
 
 const VIEWPOINT_ORDER: ViewpointId[] = ['home', 'point-a', 'point-b'];
 
-const VIEWPOINT_LABELS: Record<ViewpointId, string> = {
-  home: 'Inicio',
-  'point-a': 'Vista A',
-  'point-b': 'Vista B',
-};
-
 const VIEWPOINT_SVG: Record<ViewpointId, string> = {
   home: '/svgs/aurora/exterior/spin-home.svg',
   'point-a': '/svgs/aurora/exterior/spin-point-a.svg',
@@ -40,7 +34,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
         const meta = m.metadata as Record<string, unknown>;
         return meta?.viewpoint === id;
       });
-      return { id, label: VIEWPOINT_LABELS[id], image, svgPath: VIEWPOINT_SVG[id] };
+      return { id, image, svgPath: VIEWPOINT_SVG[id] };
     });
   }, [media]);
 
@@ -204,7 +198,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
 
           {/* Navigation controls */}
           <div className="absolute bottom-0 inset-x-0 z-20 flex items-end justify-center pb-20">
-            <div className="flex items-center gap-4 bg-black/50 backdrop-blur-sm rounded-full px-6 py-3">
+            <div className="flex items-center gap-4 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2">
               <button
                 onClick={() => navigateTo(VIEWPOINT_ORDER[prevIdx])}
                 className="w-10 h-10 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white transition-colors"
@@ -212,22 +206,6 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
               >
                 ←
               </button>
-
-              {viewpoints.map((vp) => (
-                <button
-                  key={vp.id}
-                  onClick={() => navigateTo(vp.id)}
-                  aria-current={vp.id === currentViewpoint ? 'true' : undefined}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    vp.id === currentViewpoint
-                      ? 'bg-white text-gray-900'
-                      : 'text-white/80 hover:text-white hover:bg-white/20'
-                  }`}
-                >
-                  {vp.label}
-                </button>
-              ))}
-
               <button
                 onClick={() => navigateTo(VIEWPOINT_ORDER[nextIdx])}
                 className="w-10 h-10 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white transition-colors"

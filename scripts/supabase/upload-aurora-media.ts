@@ -234,14 +234,16 @@ async function run() {
     metadata: { from_viewpoint: 'intro', to_viewpoint: 'home' },
   })) count++;
 
-  // Transition videos (forward: a→b→c→a)
+  // Transition videos
+  // avance: suffix = destination (avance_a = advance TO point-a)
+  // retroceso: suffix = departure (retroceso_a = retreat FROM point-a)
   const transitions = [
     { file: 'video_avance_a.mp4', from: 'home', to: 'point-a', title: 'Avance Home → A' },
     { file: 'video_avance_b.mp4', from: 'point-a', to: 'point-b', title: 'Avance A → B' },
     { file: 'video_avance_c.mp4', from: 'point-b', to: 'home', title: 'Avance B → Home' },
-    { file: 'video_retroceso_a.mp4', from: 'home', to: 'point-b', title: 'Retroceso Home → B' },
+    { file: 'video_retroceso_a.mp4', from: 'point-a', to: 'home', title: 'Retroceso A → Home' },
     { file: 'video_retroceso_b.mp4', from: 'point-b', to: 'point-a', title: 'Retroceso B → A' },
-    { file: 'video_retroceso_c.mp4', from: 'point-a', to: 'home', title: 'Retroceso A → Home' },
+    { file: 'video_retroceso_c.mp4', from: 'home', to: 'point-b', title: 'Retroceso Home → B' },
   ];
 
   for (let i = 0; i < transitions.length; i++) {
