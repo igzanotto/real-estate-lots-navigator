@@ -27,6 +27,11 @@ export function ProjectHomePage({ data }: ProjectHomePageProps) {
 
   const [currentView, setCurrentView] = useState<View>('exterior');
 
+  const spinSvgs = useMemo(
+    () => (data.project.settings?.spin_svgs as Record<string, string>) ?? {},
+    [data.project.settings]
+  );
+
   // Find first residential floor to navigate into
   const firstFloor = useMemo(() => {
     const residential = data.children
@@ -46,7 +51,7 @@ export function ProjectHomePage({ data }: ProjectHomePageProps) {
       {/* View content */}
       <div className="absolute inset-0">
         {currentView === 'exterior' && (
-          <Spin360Viewer media={data.media} onEnterBuilding={enterBuilding} />
+          <Spin360Viewer media={data.media} spinSvgs={spinSvgs} onEnterBuilding={enterBuilding} />
         )}
         {currentView === 'videos' && <AerialVideoGallery media={aerialVideos} />}
       </div>

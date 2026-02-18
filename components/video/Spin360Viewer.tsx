@@ -6,6 +6,7 @@ import { VideoPlayer } from './VideoPlayer';
 
 interface Spin360ViewerProps {
   media: Media[];
+  spinSvgs: Record<string, string>;
   onEnterBuilding?: () => void;
 }
 
@@ -13,13 +14,7 @@ type ViewpointId = 'home' | 'point-a' | 'point-b';
 
 const VIEWPOINT_ORDER: ViewpointId[] = ['home', 'point-a', 'point-b'];
 
-const VIEWPOINT_SVG: Record<ViewpointId, string> = {
-  home: '/svgs/aurora/exterior/spin-home.svg',
-  'point-a': '/svgs/aurora/exterior/spin-point-a.svg',
-  'point-b': '/svgs/aurora/exterior/spin-point-b.svg',
-};
-
-export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
+export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360ViewerProps) {
   const [currentViewpoint, setCurrentViewpoint] = useState<ViewpointId>('home');
   const [phase, setPhase] = useState<'idle' | 'transitioning'>('idle');
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -35,9 +30,9 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
         const meta = m.metadata as Record<string, unknown>;
         return meta?.viewpoint === id;
       });
-      return { id, image, svgPath: VIEWPOINT_SVG[id] };
+      return { id, image, svgPath: spinSvgs[id] };
     });
-  }, [media]);
+  }, [media, spinSvgs]);
 
   // Preload all transition videos into browser cache
   useEffect(() => {
@@ -72,7 +67,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
     if (!container) return;
 
     let cancelled = false;
-    const svgPath = VIEWPOINT_SVG[currentViewpoint];
+    const svgPath = spinSvgs[currentViewpoint];
 
     (async () => {
       try {
@@ -144,7 +139,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
       cancelled = true;
       container.innerHTML = '';
     };
-  }, [currentViewpoint, phase, onEnterBuilding]);
+  }, [currentViewpoint, phase, onEnterBuilding, spinSvgs]);
 
   const navigateTo = useCallback(
     (target: ViewpointId) => {
