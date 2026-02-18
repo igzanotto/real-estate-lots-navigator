@@ -1,5 +1,53 @@
 @import "tailwindcss";
 
+@theme {
+  /* Brand colors */
+  --color-brand-primary: #2563eb;
+  --color-brand-primary-hover: #1d4ed8;
+  --color-brand-primary-disabled: #60a5fa;
+
+  /* Status colors */
+  --color-status-available: #16a34a;
+  --color-status-reserved: #ea580c;
+  --color-status-sold: #dc2626;
+
+  /* Surface colors */
+  --color-surface-light: #f9fafb;
+  --color-surface-dark: #111827;
+  --color-surface-card: #ffffff;
+
+  /* Spacing scale (card & section padding) */
+  --spacing-card: 1.25rem;
+  --spacing-section: 1.5rem;
+  --spacing-header: 0.75rem;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Skip navigation link */
+.skip-nav {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.skip-nav:focus {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: auto;
+  height: auto;
+  padding: 0.75rem 1.25rem;
+  background: #2563eb;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }

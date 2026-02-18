@@ -88,7 +88,7 @@ export function ExplorerView({ data }: ExplorerViewProps) {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-hidden flex">
+      <main id="main-content" className="flex-1 overflow-hidden flex">
         <div className="flex-1 relative">
           {svgUrl ? (
             <InteractiveSVG svgUrl={svgUrl} entities={entityConfigs} backgroundUrl={backgroundUrl} />

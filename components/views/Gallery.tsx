@@ -12,11 +12,18 @@ export function Gallery({ media, unitName }: GalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [imageCache, setImageCache] = useState<Map<string, string>>(new Map());
   const [loadingImages, setLoadingImages] = useState<Set<string>>(new Set());
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const imageCacheRef = useRef<Map<string, string>>(new Map());
 
   const loadImage = useCallback(async (url: string) => {
     if (imageCacheRef.current.has(url)) return;
     setLoadingImages((prev) => new Set(prev).add(url));
+    setFailedImages((prev) => {
+      if (!prev.has(url)) return prev;
+      const next = new Set(prev);
+      next.delete(url);
+      return next;
+    });
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -25,7 +32,7 @@ export function Gallery({ media, unitName }: GalleryProps) {
       imageCacheRef.current.set(url, blobUrl);
       setImageCache((prev) => new Map(prev).set(url, blobUrl));
     } catch {
-      // Silently fail
+      setFailedImages((prev) => new Set(prev).add(url));
     } finally {
       setLoadingImages((prev) => {
         const next = new Set(prev);
@@ -34,6 +41,11 @@ export function Gallery({ media, unitName }: GalleryProps) {
       });
     }
   }, []);
+
+  const retryImage = useCallback((url: string) => {
+    imageCacheRef.current.delete(url);
+    loadImage(url);
+  }, [loadImage]);
 
   // Load current and adjacent images
   useEffect(() => {
@@ -55,7 +67,7 @@ export function Gallery({ media, unitName }: GalleryProps) {
 
   if (media.length === 0) {
     return (
-      <div className="bg-gray-100 rounded-lg flex items-center justify-center" style={{ minHeight: 400 }}>
+      <div className="bg-gray-100 rounded-lg flex items-center justify-center min-h-[400px]">
         <div className="text-center text-gray-400">
           <svg className="mx-auto h-16 w-16 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -71,11 +83,12 @@ export function Gallery({ media, unitName }: GalleryProps) {
   const currentUrl = currentMedia.url || currentMedia.storagePath;
   const cached = currentUrl ? imageCache.get(currentUrl) : undefined;
   const isLoading = currentUrl ? loadingImages.has(currentUrl) : false;
+  const hasFailed = currentUrl ? failedImages.has(currentUrl) : false;
 
   return (
     <div>
       {/* Main image */}
-      <div className="bg-gray-100 rounded-lg overflow-hidden relative" style={{ minHeight: 400 }}>
+      <div className="bg-gray-100 rounded-lg overflow-hidden relative min-h-[400px]">
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center text-gray-400">
             <svg className="animate-spin h-10 w-10" viewBox="0 0 24 24">
@@ -88,12 +101,19 @@ export function Gallery({ media, unitName }: GalleryProps) {
           <img
             src={cached}
             alt={currentMedia.altText || currentMedia.title || unitName}
-            className="w-full h-full object-cover"
-            style={{ minHeight: 400, maxHeight: 500 }}
+            className="w-full h-full object-cover min-h-[400px] max-h-[500px]"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
-            Imagen no disponible
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+            <p className="text-sm">{hasFailed ? 'Error al cargar la imagen' : 'Imagen no disponible'}</p>
+            {hasFailed && currentUrl && (
+              <button
+                onClick={() => retryImage(currentUrl)}
+                className="mt-3 px-4 py-1.5 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+              >
+                Reintentar
+              </button>
+            )}
           </div>
         )}
 

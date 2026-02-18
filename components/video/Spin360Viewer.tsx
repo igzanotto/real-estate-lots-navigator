@@ -218,6 +218,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
                 <button
                   key={vp.id}
                   onClick={() => navigateTo(vp.id)}
+                  aria-current={vp.id === currentViewpoint ? 'true' : undefined}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     vp.id === currentViewpoint
                       ? 'bg-white text-gray-900'

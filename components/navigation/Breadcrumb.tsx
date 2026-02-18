@@ -35,7 +35,7 @@ export function Breadcrumb({ items, variant = 'dark' }: BreadcrumbProps) {
               {item.label}
             </Link>
           ) : (
-            <span className={s.current}>{item.label}</span>
+            <span className={s.current} aria-current="page">{item.label}</span>
           )}
         </div>
       ))}

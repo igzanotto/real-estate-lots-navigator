@@ -21,16 +21,16 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto p-6">
+      <main id="main-content" className="max-w-4xl mx-auto p-6">
         <div className="grid gap-6 md:grid-cols-2">
           {projects.map((project) => (
             <Link
               key={project.id}
               href={`/p/${project.slug}`}
-              className="block bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+              className="block bg-white rounded-lg border border-gray-200 p-5 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-sm px-2 py-1 rounded bg-blue-100 text-blue-700 font-medium">
+                <span className="text-sm px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
                   {project.type === 'subdivision' ? 'Loteo' : 'Edificio'}
                 </span>
                 <span className={`text-sm px-2 py-1 rounded-full font-medium ${STATUS_CLASSES[project.status]}`}>

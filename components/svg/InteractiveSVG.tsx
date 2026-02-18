@@ -223,16 +223,15 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
   }
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" aria-live="polite">
       {status === 'loading' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100" role="status">
           <div className="animate-pulse text-gray-600">Cargando mapa...</div>
         </div>
       )}
       <div
         ref={containerRef}
-        className="w-full h-full"
-        style={{ minHeight: '600px' }}
+        className="w-full h-full min-h-[600px]"
       />
     </div>
   );

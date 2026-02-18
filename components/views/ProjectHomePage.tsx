@@ -57,6 +57,7 @@ export function ProjectHomePage({ data }: ProjectHomePageProps) {
           {hasExterior && (
             <button
               onClick={() => setCurrentView('exterior')}
+              aria-current={currentView === 'exterior' ? 'true' : undefined}
               className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
                 currentView === 'exterior'
                   ? 'bg-white text-gray-900'
@@ -75,6 +76,7 @@ export function ProjectHomePage({ data }: ProjectHomePageProps) {
           {aerialVideos.length > 0 && (
             <button
               onClick={() => setCurrentView('videos')}
+              aria-current={currentView === 'videos' ? 'true' : undefined}
               className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
                 currentView === 'videos'
                   ? 'bg-white text-gray-900'
