@@ -46,12 +46,24 @@ export function ProjectHomePage({ data }: ProjectHomePageProps) {
     }
   }, [targetFloor, data.project.slug, router]);
 
+  // URLs to preload into browser cache while entrance video plays
+  const preloadUrls = useMemo(() => {
+    if (!targetFloor) return [];
+    const urls: string[] = [];
+    if (targetFloor.svgPath) urls.push(targetFloor.svgPath);
+    const bg = data.childrenMedia[targetFloor.id]?.find(
+      (m) => m.purpose === 'exploration' && m.type === 'image'
+    );
+    if (bg?.url) urls.push(bg.url);
+    return urls;
+  }, [targetFloor, data.childrenMedia]);
+
   return (
     <div className="relative h-screen">
       {/* View content */}
       <div className="absolute inset-0">
         {currentView === 'exterior' && (
-          <Spin360Viewer media={data.media} spinSvgs={spinSvgs} onEnterBuilding={enterBuilding} />
+          <Spin360Viewer media={data.media} spinSvgs={spinSvgs} onEnterBuilding={enterBuilding} preloadOnEntrance={preloadUrls} />
         )}
         {currentView === 'videos' && <AerialVideoGallery media={aerialVideos} />}
       </div>

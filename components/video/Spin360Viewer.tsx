@@ -8,13 +8,15 @@ interface Spin360ViewerProps {
   media: Media[];
   spinSvgs: Record<string, string>;
   onEnterBuilding?: () => void;
+  /** URLs to preload into browser cache when entrance video starts */
+  preloadOnEntrance?: string[];
 }
 
 type ViewpointId = 'home' | 'point-a' | 'point-b';
 
 const VIEWPOINT_ORDER: ViewpointId[] = ['home', 'point-a', 'point-b'];
 
-export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360ViewerProps) {
+export function Spin360Viewer({ media, spinSvgs, onEnterBuilding, preloadOnEntrance }: Spin360ViewerProps) {
   const [currentViewpoint, setCurrentViewpoint] = useState<ViewpointId>('home');
   const [phase, setPhase] = useState<'idle' | 'transitioning'>('idle');
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -77,10 +79,19 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360Viewe
     const video = findEntranceVideo(currentViewpoint);
     if (video?.url) {
       setEntranceVideoUrl(video.url);
+      // Preload destination floor assets while the entrance video plays
+      preloadOnEntrance?.forEach((url) => {
+        if (url.endsWith('.svg')) {
+          fetch(url);
+        } else {
+          const img = new Image();
+          img.src = url;
+        }
+      });
     } else {
       onEnterBuilding?.();
     }
-  }, [currentViewpoint, findEntranceVideo, onEnterBuilding]);
+  }, [currentViewpoint, findEntranceVideo, onEnterBuilding, preloadOnEntrance]);
 
   // Load and inject SVG overlay for current viewpoint
   useEffect(() => {
