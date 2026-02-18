@@ -91,3 +91,9 @@ export interface ExplorerPageData {
   siblings: Layer[];              // layers sharing the same parent (includes current)
 }
 
+export interface SiblingExplorerBundle {
+  current: ExplorerPageData;
+  siblingDataMap: Record<string, ExplorerPageData>; // layerId → ExplorerPageData
+  siblingOrder: string[];                           // ordered layer IDs (by sortOrder)
+}
+

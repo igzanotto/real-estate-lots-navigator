@@ -3,6 +3,7 @@ import {
   Layer,
   Media,
   ExplorerPageData,
+  SiblingExplorerBundle,
   EntityStatus,
   ProjectType,
   MediaType,
@@ -220,6 +221,34 @@ export function buildExplorerPageData(
     currentPath: layerSlugs,
     siblings,
   };
+}
+
+// ============================================================
+// Build SiblingExplorerBundle — all sibling data in one pass
+// ============================================================
+
+export function buildSiblingExplorerBundle(
+  rawProject: RawProject,
+  rawLayers: RawLayer[],
+  rawMedia: RawMedia[],
+  layerSlugs: string[]
+): SiblingExplorerBundle {
+  const current = buildExplorerPageData(rawProject, rawLayers, rawMedia, layerSlugs);
+
+  const siblingDataMap: Record<string, ExplorerPageData> = {};
+  const parentPath = layerSlugs.slice(0, -1);
+
+  // Build data for each sibling (re-uses the same raw arrays — pure filtering)
+  for (const sibling of current.siblings) {
+    const siblingPath = [...parentPath, sibling.slug];
+    siblingDataMap[sibling.id] = buildExplorerPageData(
+      rawProject, rawLayers, rawMedia, siblingPath
+    );
+  }
+
+  const siblingOrder = current.siblings.map((s) => s.id);
+
+  return { current, siblingDataMap, siblingOrder };
 }
 
 // ============================================================

@@ -45,7 +45,7 @@ export function SiblingNavigator({ siblings, currentLayerId, label, onSelect }: 
                 ref={isCurrent ? activeRef : undefined}
                 onClick={() => onSelect(sibling)}
                 className={`
-                  flex items-center gap-2 px-3 py-2 text-sm transition-colors
+                  flex items-center gap-2 px-3 py-2 text-sm transition-colors outline-none
                   ${isCurrent
                     ? 'bg-white/15 text-white font-semibold border-l-2 border-white'
                     : 'text-gray-400 hover:bg-white/10 hover:text-white'

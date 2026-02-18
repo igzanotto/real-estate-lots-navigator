@@ -1,10 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
-import { ExplorerPageData, Project } from '@/types/hierarchy.types';
+import { ExplorerPageData, SiblingExplorerBundle, Project } from '@/types/hierarchy.types';
 import {
   RawProject,
   RawLayer,
   RawMedia,
   buildExplorerPageData,
+  buildSiblingExplorerBundle,
   transformProject,
 } from './transform';
 
@@ -54,6 +55,57 @@ export async function getExplorerPageData(
   }
 
   return buildExplorerPageData(
+    rawProject,
+    layersResult.data as RawLayer[],
+    mediaResult.data as RawMedia[],
+    layerSlugs
+  );
+}
+
+/**
+ * Fetch explorer data for a layer AND all its siblings in one DB round-trip.
+ * Returns a bundle that enables client-side floor switching with no extra fetches.
+ */
+export async function getSiblingExplorerBundle(
+  projectSlug: string,
+  layerSlugs: string[]
+): Promise<SiblingExplorerBundle> {
+  const supabase = await createClient();
+
+  const { data: project, error: projectError } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('slug', projectSlug)
+    .single();
+
+  if (projectError || !project) {
+    throw new Error(`Project not found: ${projectSlug}`);
+  }
+
+  const rawProject = project as RawProject;
+
+  const [layersResult, mediaResult] = await Promise.all([
+    supabase
+      .from('layers')
+      .select('*')
+      .eq('project_id', rawProject.id)
+      .order('depth')
+      .order('sort_order'),
+    supabase
+      .from('media')
+      .select('*')
+      .eq('project_id', rawProject.id)
+      .order('sort_order'),
+  ]);
+
+  if (layersResult.error) {
+    throw new Error(`Failed to fetch layers for project "${projectSlug}": ${layersResult.error.message}`);
+  }
+  if (mediaResult.error) {
+    throw new Error(`Failed to fetch media for project "${projectSlug}": ${mediaResult.error.message}`);
+  }
+
+  return buildSiblingExplorerBundle(
     rawProject,
     layersResult.data as RawLayer[],
     mediaResult.data as RawMedia[],

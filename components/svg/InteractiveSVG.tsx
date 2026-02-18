@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { EntityStatus } from '@/types/hierarchy.types';
 import { STATUS_COLORS, STATUS_LABELS } from '@/lib/constants/status';
 
@@ -22,9 +22,6 @@ type ListenerEntry = { element: SVGElement; event: string; handler: EventListene
 export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveSVGProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const listenersRef = useRef<ListenerEntry[]>([]);
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const setupSVG = useCallback(async (container: HTMLDivElement) => {
     const res = await fetch(svgUrl);
     if (!res.ok) throw new Error(`Failed to load SVG: ${res.statusText}`);
@@ -192,17 +189,9 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
 
     let cancelled = false;
 
-    setupSVG(container)
-      .then(() => {
-        if (!cancelled) setStatus('ready');
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          console.error('Error loading SVG:', err);
-          setErrorMessage(err.message);
-          setStatus('error');
-        }
-      });
+    setupSVG(container).catch((err) => {
+      if (!cancelled) console.error('Error loading SVG:', err);
+    });
 
     return () => {
       cancelled = true;
@@ -214,25 +203,10 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
     };
   }, [setupSVG]);
 
-  if (status === 'error') {
-    return (
-      <div className="flex items-center justify-center h-full bg-red-500/10 text-red-400 p-4 rounded">
-        <p>Error loading interactive map: {errorMessage}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="relative w-full h-full" aria-live="polite">
-      {status === 'loading' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-900" role="status">
-          <div className="animate-pulse text-gray-400">Cargando mapa...</div>
-        </div>
-      )}
-      <div
-        ref={containerRef}
-        className="w-full h-full min-h-[600px]"
-      />
-    </div>
+    <div
+      ref={containerRef}
+      className="w-full h-full min-h-[600px]"
+    />
   );
 }

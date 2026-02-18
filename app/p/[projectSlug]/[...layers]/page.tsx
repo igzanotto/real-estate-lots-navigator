@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getExplorerPageData } from '@/lib/data/repository';
+import { getSiblingExplorerBundle } from '@/lib/data/repository';
 import { getProjectSlugsAdmin, getLayerPathsAdmin } from '@/lib/data/repository-admin';
 import { ExplorerView } from '@/components/views/ExplorerView';
 import { UnitPage } from '@/components/views/UnitPage';
@@ -11,19 +11,21 @@ interface LayerPageProps {
 export default async function LayerPage({ params }: LayerPageProps) {
   const { projectSlug, layers } = await params;
 
-  let data;
+  let bundle;
   try {
-    data = await getExplorerPageData(projectSlug, layers);
+    bundle = await getSiblingExplorerBundle(projectSlug, layers);
   } catch {
     notFound();
   }
 
+  const { current } = bundle;
+
   // Leaf layer (no children) → full detail page with gallery
-  if (data.children.length === 0 && data.currentLayer) {
-    return <UnitPage data={data} />;
+  if (current.children.length === 0 && current.currentLayer) {
+    return <UnitPage data={current} />;
   }
 
-  return <ExplorerView data={data} />;
+  return <ExplorerView data={current} siblingBundle={bundle} />;
 }
 
 export async function generateStaticParams() {
