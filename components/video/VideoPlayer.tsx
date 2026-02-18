@@ -8,6 +8,7 @@ interface VideoPlayerProps {
   autoPlay?: boolean;
   loop?: boolean;
   muted?: boolean;
+  controls?: boolean;
   onEnded?: () => void;
   className?: string;
 }
@@ -18,6 +19,7 @@ export function VideoPlayer({
   autoPlay = false,
   loop = false,
   muted = false,
+  controls = true,
   onEnded,
   className = '',
 }: VideoPlayerProps) {
@@ -38,11 +40,11 @@ export function VideoPlayer({
         autoPlay={autoPlay}
         loop={loop}
         muted={muted}
-        controls
+        controls={controls}
         playsInline
         onLoadedData={() => setIsLoading(false)}
         onEnded={onEnded}
-        className="w-full h-full object-contain"
+        className="w-full h-full object-cover"
       />
     </div>
   );

@@ -165,6 +165,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
           src={transitionVideoUrl}
           autoPlay
           muted
+          controls={false}
           onEnded={() => onVideoEndRef.current?.()}
           className="w-full h-full"
         />
