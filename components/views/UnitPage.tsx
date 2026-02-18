@@ -14,7 +14,6 @@ export function UnitPage({ data }: UnitPageProps) {
   const router = useRouter();
   const { project, currentLayer, media, breadcrumbs, siblings, currentPath } = data;
 
-  // Navigate to sibling unit
   const navigateToSibling = useCallback((sibling: Layer) => {
     const siblingPath = [...currentPath.slice(0, -1), sibling.slug];
     router.push(`/p/${project.slug}/${siblingPath.join('/')}`);
@@ -23,7 +22,7 @@ export function UnitPage({ data }: UnitPageProps) {
   if (!currentLayer) return null;
 
   const props = currentLayer.properties;
-  const galleryMedia = media.filter((m) => m.type === 'image' && (m.purpose === 'gallery' || m.purpose === 'cover'));
+  const galleryMedia = media.filter((m) => m.type === 'image' && (m.purpose === 'gallery' || m.purpose === 'cover' || m.purpose === 'floor_plan'));
   const allMedia = media.filter((m) => m.type === 'image');
 
   const area = props.area as number | undefined;
@@ -40,131 +39,120 @@ export function UnitPage({ data }: UnitPageProps) {
   const hasBalcony = props.has_balcony as boolean | undefined;
   const floorNumber = props.floor_number as number | undefined;
 
+  const detailRows = [
+    unitType && { label: 'Tipo', value: unitType },
+    area != null && { label: 'Superficie', value: `${area} m²` },
+    (bedrooms != null || bathrooms != null) && {
+      label: 'Ambientes',
+      value: [
+        bedrooms != null ? `${bedrooms} dorm.` : null,
+        bathrooms != null ? `${bathrooms} baño${bathrooms !== 1 ? 's' : ''}` : null,
+      ].filter(Boolean).join(' / '),
+    },
+    (frontMeters || depthMeters) && {
+      label: 'Dimensiones',
+      value: [
+        frontMeters ? `${frontMeters}m` : null,
+        depthMeters ? `${depthMeters}m` : null,
+      ].filter(Boolean).join(' × '),
+    },
+    orientation && { label: 'Orientación', value: orientation },
+  ].filter(Boolean) as { label: string; value: string }[];
+
+  const featuresList = [
+    ...(isCorner && project.type === 'subdivision' ? ['Lote de esquina'] : []),
+    ...(hasBalcony ? ['Balcón'] : []),
+    ...(features ?? []),
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 p-4 shadow-sm">
-        <div className="max-w-5xl mx-auto">
+      <header className="border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-6 py-4">
           <Breadcrumb items={breadcrumbs} />
-          <div className="flex items-center gap-4 mt-2">
-            <h1 className="text-2xl font-bold text-gray-900">{currentLayer.name}</h1>
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${STATUS_CLASSES[currentLayer.status]}`}>
+          <div className="flex items-center gap-4 mt-3">
+            <h1 className="font-display text-3xl font-light text-[var(--text-primary)] tracking-tight">
+              {currentLayer.name}
+            </h1>
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${STATUS_CLASSES[currentLayer.status]}`}>
               {STATUS_LABELS[currentLayer.status]}
             </span>
           </div>
-          {floorNumber && (
-            <p className="text-sm text-gray-500 mt-1">Piso {floorNumber}</p>
+          {floorNumber != null && (
+            <p className="text-sm text-[var(--text-muted)] mt-1">Piso {floorNumber}</p>
           )}
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left column: Gallery */}
-          <div className="lg:col-span-2">
+      <main className="max-w-6xl mx-auto px-6 py-8 animate-fade-up">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Left: Gallery (3 cols) */}
+          <div className="lg:col-span-3">
             <Gallery media={galleryMedia.length > 0 ? galleryMedia : allMedia} unitName={currentLayer.name} />
           </div>
 
-          {/* Right column: Info */}
-          <div className="space-y-6">
+          {/* Right: Info (2 cols) */}
+          <div className="lg:col-span-2 space-y-5 stagger-children">
             {/* Price */}
             {price != null && (
-              <div className="bg-white rounded-lg border border-gray-200 p-5">
-                <p className="text-3xl font-bold text-green-600">
+              <div className="bg-[var(--bg-surface)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] p-6">
+                <p className="font-display text-4xl font-light text-[var(--accent)] tracking-tight">
                   ${price.toLocaleString()}
                 </p>
                 {area && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    ${Math.round(price / area)}/m²
+                  <p className="text-sm text-[var(--text-muted)] mt-1">
+                    ${Math.round(price / area).toLocaleString()} / m²
                   </p>
                 )}
               </div>
             )}
 
-            {/* Details card */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
-              <h3 className="font-semibold text-gray-900">Detalles</h3>
-
-              {unitType && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Tipo</span>
-                  <span className="text-sm font-medium text-gray-900">{unitType}</span>
+            {/* Details */}
+            {detailRows.length > 0 && (
+              <div className="bg-[var(--bg-surface)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] p-6">
+                <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.12em] mb-4">Detalles</h3>
+                <div className="space-y-3">
+                  {detailRows.map((row) => (
+                    <div key={row.label} className="flex justify-between items-center">
+                      <span className="text-sm text-[var(--text-secondary)]">{row.label}</span>
+                      <span className="text-sm font-medium text-[var(--text-primary)]">{row.value}</span>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {area != null && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Superficie</span>
-                  <span className="text-sm font-medium text-gray-900">{area} m²</span>
+            {/* Features */}
+            {featuresList.length > 0 && (
+              <div className="bg-[var(--bg-surface)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] p-6">
+                <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.12em] mb-4">Características</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {featuresList.map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2.5 text-sm">
+                      <div className="w-5 h-5 rounded-full bg-[var(--status-available-bg)] flex items-center justify-center flex-shrink-0">
+                        <svg className="w-3 h-3 text-[var(--status-available)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                      </div>
+                      <span className="text-[var(--text-secondary)]">{feature}</span>
+                    </div>
+                  ))}
                 </div>
-              )}
-
-              {(bedrooms != null || bathrooms != null) && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Ambientes</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {bedrooms != null && `${bedrooms} dorm.`}
-                    {bedrooms != null && bathrooms != null && ' / '}
-                    {bathrooms != null && `${bathrooms} baño${bathrooms !== 1 ? 's' : ''}`}
-                  </span>
-                </div>
-              )}
-
-              {(frontMeters || depthMeters) && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Dimensiones</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {frontMeters && `${frontMeters}m`}
-                    {frontMeters && depthMeters && ' × '}
-                    {depthMeters && `${depthMeters}m`}
-                  </span>
-                </div>
-              )}
-
-              {orientation && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Orientación</span>
-                  <span className="text-sm font-medium text-gray-900">{orientation}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Features card */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5">
-              <h3 className="font-semibold text-gray-900 mb-3">Características</h3>
-              <ul className="space-y-2">
-                {isCorner && project.type === 'subdivision' && (
-                  <li className="flex items-center text-sm">
-                    <span className="text-green-600 mr-2">✓</span>
-                    Lote de esquina
-                  </li>
-                )}
-                {hasBalcony && (
-                  <li className="flex items-center text-sm">
-                    <span className="text-green-600 mr-2">✓</span>
-                    Balcón
-                  </li>
-                )}
-                {features && features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center text-sm">
-                    <span className="text-green-600 mr-2">✓</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
+              </div>
+            )}
 
             {/* Description */}
             {description && (
-              <div className="bg-white rounded-lg border border-gray-200 p-5">
-                <h3 className="font-semibold text-gray-900 mb-2">Descripción</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">{description}</p>
+              <div className="bg-[var(--bg-surface)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] p-6">
+                <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.12em] mb-3">Descripción</h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{description}</p>
               </div>
             )}
 
             {/* CTA */}
             {currentLayer.status === 'available' && (
-              <button className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+              <button className="w-full py-3.5 bg-[var(--accent)] hover:bg-[var(--accent-light)] text-[var(--text-inverse)] font-medium rounded-[var(--radius-lg)] transition-all duration-300 text-sm tracking-wide hover:shadow-[var(--shadow-glow)]">
                 Consultar Disponibilidad
               </button>
             )}
@@ -173,9 +161,11 @@ export function UnitPage({ data }: UnitPageProps) {
 
         {/* Sibling units */}
         {siblings.length > 1 && (
-          <div className="mt-10">
-            <h3 className="font-semibold text-gray-900 mb-4">Otras unidades en este piso</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="mt-12 animate-fade-up" style={{ animationDelay: '200ms' }}>
+            <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.12em] mb-5">
+              Otras unidades en este piso
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 stagger-children">
               {siblings.map((sibling) => {
                 const isCurrent = sibling.id === currentLayer.id;
                 const siblingPrice = sibling.properties.price as number | undefined;
@@ -185,22 +175,22 @@ export function UnitPage({ data }: UnitPageProps) {
                     key={sibling.id}
                     onClick={() => !isCurrent && navigateToSibling(sibling)}
                     disabled={isCurrent}
-                    className={`p-4 rounded-lg border text-left transition-colors ${
+                    className={`p-4 rounded-[var(--radius-md)] border text-left transition-all duration-200 ${
                       isCurrent
-                        ? 'border-blue-300 bg-blue-50 cursor-default'
-                        : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                        ? 'border-[var(--accent)]/30 bg-[var(--accent-bg)] cursor-default'
+                        : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--accent)]/30 hover:bg-[var(--accent-bg)]'
                     }`}
                   >
-                    <div className="font-semibold text-gray-900">{sibling.name}</div>
+                    <div className="font-medium text-sm text-[var(--text-primary)]">{sibling.name}</div>
                     {siblingArea && (
-                      <div className="text-xs text-gray-500 mt-1">{siblingArea} m²</div>
+                      <div className="text-xs text-[var(--text-muted)] mt-1">{siblingArea} m²</div>
                     )}
                     {siblingPrice && (
-                      <div className="text-sm font-medium text-green-600 mt-1">
+                      <div className="text-sm font-medium text-[var(--accent)] mt-1.5">
                         ${siblingPrice.toLocaleString()}
                       </div>
                     )}
-                    <div className={`mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CLASSES[sibling.status]}`}>
+                    <div className={`mt-2.5 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${STATUS_CLASSES[sibling.status]}`}>
                       {STATUS_LABELS[sibling.status]}
                     </div>
                   </button>
@@ -212,13 +202,16 @@ export function UnitPage({ data }: UnitPageProps) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 p-4 mt-8">
-        <div className="max-w-5xl mx-auto">
+      <footer className="border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] mt-8">
+        <div className="max-w-6xl mx-auto px-6 py-4">
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors text-sm text-gray-600"
+            className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200"
           >
-            ← Volver al plano
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Volver al plano
           </button>
         </div>
       </footer>
@@ -257,7 +250,6 @@ function Gallery({ media, unitName }: { media: Media[]; unitName: string }) {
     }
   }, []);
 
-  // Load current and adjacent images
   useEffect(() => {
     const indices = [selectedIndex - 1, selectedIndex, selectedIndex + 1]
       .filter((i) => i >= 0 && i < media.length);
@@ -267,7 +259,6 @@ function Gallery({ media, unitName }: { media: Media[]; unitName: string }) {
     }
   }, [selectedIndex, media, loadImage]);
 
-  // Cleanup
   useEffect(() => {
     const ref = imageCacheRef;
     return () => {
@@ -277,13 +268,18 @@ function Gallery({ media, unitName }: { media: Media[]; unitName: string }) {
 
   if (media.length === 0) {
     return (
-      <div className="bg-gray-100 rounded-lg flex items-center justify-center" style={{ minHeight: 400 }}>
-        <div className="text-center text-gray-400">
-          <svg className="mx-auto h-16 w-16 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <p className="text-sm">No hay imágenes disponibles para {unitName}</p>
-          <p className="text-xs mt-1">Las imágenes se cargarán desde el bucket de almacenamiento</p>
+      <div
+        className="bg-[var(--bg-surface)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] flex items-center justify-center"
+        style={{ minHeight: 420 }}
+      >
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center">
+            <svg className="w-7 h-7 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a2.25 2.25 0 002.25-2.25V5.25a2.25 2.25 0 00-2.25-2.25H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+            </svg>
+          </div>
+          <p className="text-sm text-[var(--text-secondary)]">No hay imágenes disponibles</p>
+          <p className="text-xs text-[var(--text-muted)] mt-1">{unitName}</p>
         </div>
       </div>
     );
@@ -297,25 +293,25 @@ function Gallery({ media, unitName }: { media: Media[]; unitName: string }) {
   return (
     <div>
       {/* Main image */}
-      <div className="bg-gray-100 rounded-lg overflow-hidden relative" style={{ minHeight: 400 }}>
+      <div
+        className="bg-[var(--bg-surface)] rounded-[var(--radius-lg)] overflow-hidden relative border border-[var(--border-subtle)]"
+        style={{ minHeight: 420 }}
+      >
         {isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-            <svg className="animate-spin h-10 w-10" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-[var(--border-default)] border-t-[var(--accent)] rounded-full animate-spin" />
           </div>
         ) : cached ? (
           /* eslint-disable-next-line @next/next/no-img-element -- blob URLs incompatible with next/image */
           <img
             src={cached}
             alt={currentMedia.altText || currentMedia.title || unitName}
-            className="w-full h-full object-cover"
-            style={{ minHeight: 400, maxHeight: 500 }}
+            className="w-full h-full object-cover animate-fade-in"
+            style={{ minHeight: 420, maxHeight: 520 }}
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
-            Imagen no disponible
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-sm text-[var(--text-muted)]">Imagen no disponible</span>
           </div>
         )}
 
@@ -324,22 +320,26 @@ function Gallery({ media, unitName }: { media: Media[]; unitName: string }) {
           <>
             <button
               onClick={() => setSelectedIndex((i) => (i > 0 ? i - 1 : media.length - 1))}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 glass rounded-full flex items-center justify-center border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all duration-200"
             >
-              ←
+              <svg className="w-4 h-4 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
             <button
               onClick={() => setSelectedIndex((i) => (i < media.length - 1 ? i + 1 : 0))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 glass rounded-full flex items-center justify-center border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all duration-200"
             >
-              →
+              <svg className="w-4 h-4 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </>
         )}
 
         {/* Counter */}
         {media.length > 1 && (
-          <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded">
+          <div className="absolute bottom-3 right-3 glass px-3 py-1.5 rounded-full text-xs text-[var(--text-secondary)] border border-[var(--border-subtle)]">
             {selectedIndex + 1} / {media.length}
           </div>
         )}
@@ -347,7 +347,7 @@ function Gallery({ media, unitName }: { media: Media[]; unitName: string }) {
 
       {/* Thumbnails */}
       {media.length > 1 && (
-        <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
+        <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
           {media.map((m, idx) => {
             const thumbUrl = m.url || m.storagePath;
             const thumbCached = thumbUrl ? imageCache.get(thumbUrl) : undefined;
@@ -355,15 +355,17 @@ function Gallery({ media, unitName }: { media: Media[]; unitName: string }) {
               <button
                 key={m.id}
                 onClick={() => setSelectedIndex(idx)}
-                className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                  idx === selectedIndex ? 'border-blue-500' : 'border-transparent hover:border-gray-300'
+                className={`flex-shrink-0 w-16 h-16 rounded-[var(--radius-sm)] overflow-hidden border-2 transition-all duration-200 ${
+                  idx === selectedIndex
+                    ? 'border-[var(--accent)] shadow-[0_0_0_1px_var(--accent)]'
+                    : 'border-transparent hover:border-[var(--border-strong)] opacity-60 hover:opacity-100'
                 }`}
               >
                 {thumbCached ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={thumbCached} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gray-200" />
+                  <div className="w-full h-full bg-[var(--bg-elevated)]" />
                 )}
               </button>
             );

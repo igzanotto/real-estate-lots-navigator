@@ -8,38 +8,38 @@ export const STATUS_LABELS: Record<EntityStatus, string> = {
 };
 
 export const STATUS_CLASSES: Record<EntityStatus, string> = {
-  available: 'bg-green-100 text-green-800',
-  reserved: 'bg-orange-100 text-orange-800',
-  sold: 'bg-red-100 text-red-800',
-  not_available: 'bg-gray-100 text-gray-800',
+  available: 'bg-[var(--status-available-bg)] text-[var(--status-available)] border border-[var(--status-available)]/20',
+  reserved: 'bg-[var(--status-reserved-bg)] text-[var(--status-reserved)] border border-[var(--status-reserved)]/20',
+  sold: 'bg-[var(--status-sold-bg)] text-[var(--status-sold)] border border-[var(--status-sold)]/20',
+  not_available: 'bg-[var(--status-unavailable-bg)] text-[var(--status-unavailable)] border border-[var(--status-unavailable)]/20',
 };
 
 export const STATUS_DOT_CLASSES: Record<EntityStatus, string> = {
-  available: 'bg-green-400',
-  reserved: 'bg-orange-400',
-  sold: 'bg-red-400',
-  not_available: 'bg-gray-400',
+  available: 'bg-[var(--status-available)]',
+  reserved: 'bg-[var(--status-reserved)]',
+  sold: 'bg-[var(--status-sold)]',
+  not_available: 'bg-[var(--status-unavailable)]',
 };
 
 export const STATUS_COLORS: Record<EntityStatus, { fill: string; stroke: string; indicator: string }> = {
   available: {
-    fill: 'rgba(76, 175, 80, 0.15)',
-    stroke: '#4CAF50',
-    indicator: '#4CAF50',
+    fill: 'rgba(107, 175, 123, 0.12)',
+    stroke: '#6BAF7B',
+    indicator: '#6BAF7B',
   },
   reserved: {
-    fill: 'rgba(255, 152, 0, 0.15)',
-    stroke: '#FF9800',
-    indicator: '#FF9800',
+    fill: 'rgba(212, 162, 76, 0.12)',
+    stroke: '#D4A24C',
+    indicator: '#D4A24C',
   },
   sold: {
-    fill: 'rgba(244, 67, 54, 0.15)',
-    stroke: '#F44336',
-    indicator: '#F44336',
+    fill: 'rgba(196, 96, 90, 0.12)',
+    stroke: '#C4605A',
+    indicator: '#C4605A',
   },
   not_available: {
-    fill: 'rgba(158, 158, 158, 0.15)',
-    stroke: '#9E9E9E',
-    indicator: '#9E9E9E',
+    fill: 'rgba(94, 90, 93, 0.12)',
+    stroke: '#5E5A5D',
+    indicator: '#5E5A5D',
   },
 };

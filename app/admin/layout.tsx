@@ -7,13 +7,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const user = await getAuthUser();
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-        <span className="text-sm font-semibold text-gray-900">Admin</span>
+    <div className="min-h-screen bg-[var(--bg-base)]">
+      <header className="border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-6 py-3 flex items-center justify-between">
+        <span className="text-sm font-semibold text-[var(--text-primary)]">Admin</span>
         <div className="flex items-center gap-4">
-          {user && <span className="text-sm text-gray-500">{user.email}</span>}
+          {user && <span className="text-sm text-[var(--text-muted)]">{user.email}</span>}
           <form action={signOut}>
-            <button className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+            <button className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200">
               Cerrar sesion
             </button>
           </form>

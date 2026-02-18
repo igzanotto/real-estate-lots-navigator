@@ -32,15 +32,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-sm">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin</h1>
-          <p className="text-sm text-gray-500 mb-6">Explorador Inmobiliario</p>
+    <div className="flex items-center justify-center min-h-screen bg-[var(--bg-base)]">
+      <div className="w-full max-w-sm animate-fade-up">
+        <div className="bg-[var(--bg-surface)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] p-8">
+          <p className="text-xs font-semibold text-[var(--accent)] uppercase tracking-[0.2em] mb-1">
+            Explorador Inmobiliario
+          </p>
+          <h1 className="font-display text-2xl font-light text-[var(--text-primary)] mb-6">Admin</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
                 Email
               </label>
               <input
@@ -49,12 +51,12 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3.5 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-[var(--radius-md)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all duration-200"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
                 Contrasena
               </label>
               <input
@@ -63,18 +65,18 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3.5 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-[var(--radius-md)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all duration-200"
               />
             </div>
 
             {error && (
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-[var(--status-sold)]">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-md transition-colors"
+              className="w-full py-2.5 px-4 bg-[var(--accent)] hover:bg-[var(--accent-light)] disabled:opacity-50 text-[var(--text-inverse)] font-medium rounded-[var(--radius-md)] transition-all duration-200 text-sm"
             >
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>

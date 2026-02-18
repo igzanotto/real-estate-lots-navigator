@@ -34,24 +34,21 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
     const svg = container.querySelector('svg');
     if (!svg) throw new Error('No SVG element found');
 
-    // Make SVG responsive and transparent
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     svg.style.display = 'block';
     svg.style.background = 'transparent';
 
-    // Make non-interactive elements semi-transparent so background shows through
     const allPaths = svg.querySelectorAll('path, rect, polygon, circle, ellipse');
     allPaths.forEach((el) => {
       const element = el as SVGElement;
       if (!element.id || !entities.find(e => e.id === element.id)) {
-        element.style.opacity = '0.3';
+        element.style.opacity = '0.2';
       }
     });
 
     const listeners: ListenerEntry[] = [];
 
-    // Process each entity
     entities.forEach((entity) => {
       const element = svg.querySelector(`#${entity.id}`) as SVGElement;
       if (!element) {
@@ -62,17 +59,20 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
       const colors = STATUS_COLORS[entity.status];
 
       element.style.cursor = 'pointer';
-      element.style.transition = 'all 0.3s ease';
+      element.style.transition = 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
       element.style.fill = colors.fill;
       element.style.stroke = colors.stroke;
+      element.style.strokeWidth = '1.5';
 
       const onEnter = () => {
-        element.style.fill = colors.fill.replace('0.15', '0.35');
-        element.style.strokeWidth = '4';
+        element.style.fill = colors.fill.replace('0.12', '0.28');
+        element.style.strokeWidth = '3';
+        element.style.filter = `drop-shadow(0 0 8px ${colors.stroke}40)`;
       };
       const onLeave = () => {
         element.style.fill = colors.fill;
-        element.style.strokeWidth = '2';
+        element.style.strokeWidth = '1.5';
+        element.style.filter = 'none';
       };
       const onClick = (e: Event) => {
         e.stopPropagation();
@@ -98,33 +98,37 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
         const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         labelGroup.setAttribute('pointer-events', 'none');
 
-        const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        indicator.setAttribute('cx', (centerX - 20).toString());
-        indicator.setAttribute('cy', (centerY - 5).toString());
-        indicator.setAttribute('r', '6');
-        indicator.setAttribute('fill', colors.indicator);
-        indicator.setAttribute('stroke', 'white');
-        indicator.setAttribute('stroke-width', '2');
-
+        // Label background pill
+        const textWidth = entity.label.length * 7.5 + 24;
         const textBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        const textWidth = entity.label.length * 8 + 10;
         textBg.setAttribute('x', (centerX - textWidth / 2).toString());
-        textBg.setAttribute('y', (centerY - 15).toString());
+        textBg.setAttribute('y', (centerY - 13).toString());
         textBg.setAttribute('width', textWidth.toString());
-        textBg.setAttribute('height', '22');
-        textBg.setAttribute('rx', '4');
-        textBg.setAttribute('fill', 'rgba(255, 255, 255, 0.9)');
+        textBg.setAttribute('height', '26');
+        textBg.setAttribute('rx', '13');
+        textBg.setAttribute('fill', 'rgba(12, 12, 14, 0.85)');
         textBg.setAttribute('stroke', colors.stroke);
         textBg.setAttribute('stroke-width', '1');
+        textBg.setAttribute('stroke-opacity', '0.4');
 
+        // Status dot
+        const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        indicator.setAttribute('cx', (centerX - textWidth / 2 + 14).toString());
+        indicator.setAttribute('cy', centerY.toString());
+        indicator.setAttribute('r', '3');
+        indicator.setAttribute('fill', colors.indicator);
+
+        // Label text
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', centerX.toString());
-        text.setAttribute('y', (centerY - 1).toString());
+        text.setAttribute('x', (centerX + 4).toString());
+        text.setAttribute('y', (centerY + 1).toString());
         text.setAttribute('text-anchor', 'middle');
         text.setAttribute('dominant-baseline', 'middle');
-        text.setAttribute('font-size', '14');
-        text.setAttribute('font-weight', '600');
-        text.setAttribute('fill', '#333');
+        text.setAttribute('font-size', '12');
+        text.setAttribute('font-weight', '500');
+        text.setAttribute('font-family', 'DM Sans, sans-serif');
+        text.setAttribute('fill', '#F2EDE8');
+        text.setAttribute('letter-spacing', '0.02em');
         text.textContent = entity.label;
 
         labelGroup.appendChild(textBg);
@@ -169,8 +173,16 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
 
   if (status === 'error') {
     return (
-      <div className="flex items-center justify-center h-full bg-red-50 text-red-700 p-4 rounded">
-        <p>Error loading interactive map: {errorMessage}</p>
+      <div className="flex items-center justify-center h-full p-8">
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[var(--status-sold-bg)] flex items-center justify-center">
+            <svg className="w-5 h-5 text-[var(--status-sold)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <p className="text-sm text-[var(--text-secondary)]">Error al cargar el mapa</p>
+          <p className="text-xs text-[var(--text-muted)] mt-1">{errorMessage}</p>
+        </div>
       </div>
     );
   }
@@ -178,13 +190,16 @@ export function InteractiveSVG({ svgUrl, entities }: InteractiveSVGProps) {
   return (
     <div className="relative w-full h-full">
       {status === 'loading' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <div className="animate-pulse text-gray-600">Cargando mapa...</div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-[var(--border-default)] border-t-[var(--accent)] rounded-full animate-spin" />
+            <span className="text-xs text-[var(--text-muted)] tracking-wide">Cargando mapa</span>
+          </div>
         </div>
       )}
       <div
         ref={containerRef}
-        className="w-full h-full"
+        className={`w-full h-full transition-opacity duration-500 ${status === 'ready' ? 'opacity-100' : 'opacity-0'}`}
         style={{ minHeight: '600px' }}
       />
     </div>
