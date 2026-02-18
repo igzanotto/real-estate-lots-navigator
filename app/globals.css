@@ -2,19 +2,18 @@
 
 @theme {
   /* Brand colors */
-  --color-brand-primary: #2563eb;
-  --color-brand-primary-hover: #1d4ed8;
+  --color-brand-primary: #3b82f6;
+  --color-brand-primary-hover: #60a5fa;
   --color-brand-primary-disabled: #60a5fa;
 
-  /* Status colors */
-  --color-status-available: #16a34a;
-  --color-status-reserved: #ea580c;
-  --color-status-sold: #dc2626;
+  /* Glass-morphism surfaces */
+  --color-glass-bg: rgba(0, 0, 0, 0.6);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
 
-  /* Surface colors */
-  --color-surface-light: #f9fafb;
-  --color-surface-dark: #111827;
-  --color-surface-card: #ffffff;
+  /* Status colors */
+  --color-status-available: #22c55e;
+  --color-status-reserved: #f59e0b;
+  --color-status-sold: #ef4444;
 
   /* Spacing scale (card & section padding) */
   --spacing-card: 1.25rem;
@@ -35,6 +34,13 @@ body {
   height: 1px;
   overflow: hidden;
   z-index: 100;
+}
+
+.glass-panel {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
 }
 
 .skip-nav:focus {

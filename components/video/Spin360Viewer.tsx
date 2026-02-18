@@ -103,16 +103,15 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
           marker.style.stroke = '#ffffff';
           marker.style.strokeWidth = '4';
           marker.style.cursor = 'pointer';
-          marker.style.transition = 'all 0.3s ease';
+          marker.style.transition = 'fill 0.3s ease, stroke-width 0.3s ease';
 
           marker.addEventListener('mouseenter', () => {
             marker.style.fill = 'rgba(74, 144, 226, 1)';
-            marker.style.transform = 'scale(1.3)';
-            marker.style.transformOrigin = 'center';
+            marker.style.strokeWidth = '6';
           });
           marker.addEventListener('mouseleave', () => {
             marker.style.fill = 'rgba(74, 144, 226, 0.7)';
-            marker.style.transform = 'scale(1)';
+            marker.style.strokeWidth = '4';
           });
           marker.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -196,7 +195,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
             <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20">
               <button
                 onClick={onEnterBuilding}
-                className="bg-white/90 backdrop-blur-sm text-gray-800 px-5 py-2.5 rounded-full text-sm font-medium shadow-lg hover:bg-white transition-colors"
+                className="bg-black/60 backdrop-blur-md border border-white/10 px-5 py-2.5 rounded-full text-sm font-medium text-white shadow-lg hover:bg-white/20 transition-colors"
               >
                 Explorar niveles
               </button>
@@ -204,7 +203,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
           )}
 
           {/* Navigation controls */}
-          <div className="absolute bottom-0 inset-x-0 z-20 flex items-end justify-center pb-8">
+          <div className="absolute bottom-0 inset-x-0 z-20 flex items-end justify-center pb-20">
             <div className="flex items-center gap-4 bg-black/50 backdrop-blur-sm rounded-full px-6 py-3">
               <button
                 onClick={() => navigateTo(VIEWPOINT_ORDER[prevIdx])}

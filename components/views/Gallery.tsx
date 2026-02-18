@@ -67,8 +67,8 @@ export function Gallery({ media, unitName }: GalleryProps) {
 
   if (media.length === 0) {
     return (
-      <div className="bg-gray-100 rounded-lg flex items-center justify-center min-h-[400px]">
-        <div className="text-center text-gray-400">
+      <div className="bg-gray-800/50 rounded-lg flex items-center justify-center min-h-[400px]">
+        <div className="text-center text-gray-500">
           <svg className="mx-auto h-16 w-16 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
@@ -88,7 +88,7 @@ export function Gallery({ media, unitName }: GalleryProps) {
   return (
     <div>
       {/* Main image */}
-      <div className="bg-gray-100 rounded-lg overflow-hidden relative min-h-[400px]">
+      <div className="bg-gray-800 rounded-lg overflow-hidden relative min-h-[400px]">
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center text-gray-400">
             <svg className="animate-spin h-10 w-10" viewBox="0 0 24 24">
@@ -109,7 +109,7 @@ export function Gallery({ media, unitName }: GalleryProps) {
             {hasFailed && currentUrl && (
               <button
                 onClick={() => retryImage(currentUrl)}
-                className="mt-3 px-4 py-1.5 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                className="mt-3 glass-panel px-4 py-1.5 text-sm text-gray-300 hover:text-white transition-colors"
               >
                 Reintentar
               </button>
@@ -122,14 +122,14 @@ export function Gallery({ media, unitName }: GalleryProps) {
           <>
             <button
               onClick={() => setSelectedIndex((i) => (i > 0 ? i - 1 : media.length - 1))}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white shadow transition-colors"
               aria-label="Imagen anterior"
             >
               ←
             </button>
             <button
               onClick={() => setSelectedIndex((i) => (i < media.length - 1 ? i + 1 : 0))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white shadow transition-colors"
               aria-label="Imagen siguiente"
             >
               →
@@ -156,14 +156,14 @@ export function Gallery({ media, unitName }: GalleryProps) {
                 key={m.id}
                 onClick={() => setSelectedIndex(idx)}
                 className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                  idx === selectedIndex ? 'border-blue-500' : 'border-transparent hover:border-gray-300'
+                  idx === selectedIndex ? 'border-blue-400' : 'border-transparent hover:border-gray-600'
                 }`}
               >
                 {thumbCached ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={thumbCached} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gray-200" />
+                  <div className="w-full h-full bg-gray-800" />
                 )}
               </button>
             );

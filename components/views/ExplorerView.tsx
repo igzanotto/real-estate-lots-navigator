@@ -63,17 +63,28 @@ export function ExplorerView({ data }: ExplorerViewProps) {
   const backgroundUrl = explorationMedia?.url;
 
   return (
-    <div className="relative flex flex-col h-screen bg-gray-900">
-      {/* Compact header */}
-      <header className="bg-gray-900 border-b border-gray-700 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {breadcrumbs.length > 1 && <Breadcrumb items={breadcrumbs} />}
-            <h1 className="text-lg font-semibold text-white">{title}</h1>
+    <div className="relative flex h-screen bg-black overflow-hidden">
+      {/* Full-screen map */}
+      <main id="main-content" className="flex-1 relative">
+        {svgUrl ? (
+          <InteractiveSVG svgUrl={svgUrl} entities={entityConfigs} backgroundUrl={backgroundUrl} />
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No hay mapa disponible para este nivel
           </div>
-          <div className="hidden sm:flex items-center gap-4 text-xs text-gray-400">
+        )}
+
+        {/* Floating glass breadcrumb + title (top-left) */}
+        <div className="absolute top-4 left-4 z-20 glass-panel px-4 py-3 max-w-[70%]">
+          {breadcrumbs.length > 1 && <Breadcrumb items={breadcrumbs} />}
+          <h1 className="text-lg font-semibold text-white mt-1">{title}</h1>
+        </div>
+
+        {/* Floating glass legend (top-right) */}
+        <div className="hidden sm:block absolute top-4 right-4 z-20 glass-panel px-4 py-3">
+          <div className="flex items-center gap-4 text-xs text-gray-400">
             <span>
-              <span className="text-white font-semibold">{availableCount}</span>/{children.length} {childLabel.toLowerCase()}s disponibles
+              <span className="text-white font-semibold">{availableCount}</span>/{children.length} disponibles
             </span>
             <div className="flex gap-3">
               {(['available', 'reserved', 'sold'] as const).map((status) => (
@@ -85,29 +96,41 @@ export function ExplorerView({ data }: ExplorerViewProps) {
             </div>
           </div>
         </div>
-      </header>
 
-      {/* Main content */}
-      <main id="main-content" className="flex-1 overflow-hidden flex">
-        <div className="flex-1 relative">
-          {svgUrl ? (
-            <InteractiveSVG svgUrl={svgUrl} entities={entityConfigs} backgroundUrl={backgroundUrl} />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              No hay mapa disponible para este nivel
-            </div>
-          )}
-        </div>
+        {/* Floating back button (bottom-left) */}
+        {currentLayer && (
+          <div className="absolute bottom-4 left-4 z-20">
+            <button
+              onClick={() => router.back()}
+              className={`glass-panel px-4 py-2 text-sm ${buttonStyles('ghost', 'sm')}`}
+            >
+              ← Volver
+            </button>
+          </div>
+        )}
 
-        {showSiblings && currentLayer && (
-          <SiblingNavigator
-            siblings={siblings}
-            currentLayerId={currentLayer.id}
-            label={currentLabel}
-            onSelect={handleSiblingSelect}
-          />
+        {/* Mobile siblings toggle (bottom-right) */}
+        {showSiblings && (
+          <div className="absolute bottom-4 right-4 z-20 lg:hidden">
+            <button
+              onClick={() => setMobileSiblingsOpen((o) => !o)}
+              className={`glass-panel px-4 py-2 text-sm ${buttonStyles('ghost', 'sm')}`}
+            >
+              {currentLabel}es ↑
+            </button>
+          </div>
         )}
       </main>
+
+      {/* Desktop sibling navigator */}
+      {showSiblings && currentLayer && (
+        <SiblingNavigator
+          siblings={siblings}
+          currentLayerId={currentLayer.id}
+          label={currentLabel}
+          onSelect={handleSiblingSelect}
+        />
+      )}
 
       {/* Mobile sibling overlay */}
       {showSiblings && mobileSiblingsOpen && (
@@ -116,8 +139,8 @@ export function ExplorerView({ data }: ExplorerViewProps) {
             className="flex-1"
             onClick={() => setMobileSiblingsOpen(false)}
           />
-          <div className="bg-gray-900 border-t border-gray-700 max-h-[60vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+          <div className="glass-panel rounded-t-2xl rounded-b-none max-h-[60vh] overflow-y-auto mx-2 mb-2">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                 {currentLabel}es
               </span>
@@ -154,31 +177,6 @@ export function ExplorerView({ data }: ExplorerViewProps) {
           </div>
         </div>
       )}
-
-      {/* Bottom bar */}
-      <div className="bg-gray-900 border-t border-gray-700 px-4 py-2">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          {currentLayer ? (
-            <button
-              onClick={() => router.back()}
-              className={buttonStyles('ghost', 'sm')}
-            >
-              ← Volver
-            </button>
-          ) : (
-            <div />
-          )}
-          {showSiblings && (
-            <button
-              onClick={() => setMobileSiblingsOpen((o) => !o)}
-              className={`lg:hidden ${buttonStyles('ghost', 'sm')}`}
-            >
-              {currentLabel}es ↑
-            </button>
-          )}
-          {!showSiblings && <div />}
-        </div>
-      </div>
     </div>
   );
 }

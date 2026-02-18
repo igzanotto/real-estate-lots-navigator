@@ -89,7 +89,7 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
       element.style.outline = 'none';
 
       const onEnter = () => {
-        element.style.fill = colors.fill.replace('0.15', '0.35');
+        element.style.fill = colors.fill.replace('0.25', '0.45');
         element.style.strokeWidth = '4';
       };
       const onLeave = () => {
@@ -101,7 +101,7 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
         entity.onClick();
       };
       const onFocus = () => {
-        element.style.fill = colors.fill.replace('0.15', '0.35');
+        element.style.fill = colors.fill.replace('0.25', '0.45');
         element.style.strokeWidth = '4';
         element.style.outline = '2px solid white';
         element.style.outlineOffset = '2px';
@@ -160,7 +160,7 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
         textBg.setAttribute('width', textWidth.toString());
         textBg.setAttribute('height', '22');
         textBg.setAttribute('rx', '4');
-        textBg.setAttribute('fill', 'rgba(255, 255, 255, 0.9)');
+        textBg.setAttribute('fill', 'rgba(0, 0, 0, 0.7)');
         textBg.setAttribute('stroke', colors.stroke);
         textBg.setAttribute('stroke-width', '1');
 
@@ -171,7 +171,7 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
         text.setAttribute('dominant-baseline', 'middle');
         text.setAttribute('font-size', '14');
         text.setAttribute('font-weight', '600');
-        text.setAttribute('fill', '#333');
+        text.setAttribute('fill', '#ffffff');
         text.textContent = entity.label;
 
         labelGroup.appendChild(textBg);
@@ -216,7 +216,7 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
 
   if (status === 'error') {
     return (
-      <div className="flex items-center justify-center h-full bg-red-50 text-red-700 p-4 rounded">
+      <div className="flex items-center justify-center h-full bg-red-500/10 text-red-400 p-4 rounded">
         <p>Error loading interactive map: {errorMessage}</p>
       </div>
     );
@@ -225,8 +225,8 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
   return (
     <div className="relative w-full h-full" aria-live="polite">
       {status === 'loading' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100" role="status">
-          <div className="animate-pulse text-gray-600">Cargando mapa...</div>
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900" role="status">
+          <div className="animate-pulse text-gray-400">Cargando mapa...</div>
         </div>
       )}
       <div

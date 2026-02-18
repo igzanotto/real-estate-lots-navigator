@@ -43,19 +43,19 @@ export function UnitPage({ data }: UnitPageProps) {
   const floorNumber = props.floor_number as number | undefined;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-950">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
+      <header className="glass-panel rounded-none px-4 py-3">
         <div className="max-w-5xl mx-auto">
-          <Breadcrumb items={breadcrumbs} variant="light" />
+          <Breadcrumb items={breadcrumbs} />
           <div className="flex items-center gap-4 mt-2">
-            <h1 className="text-2xl font-bold text-gray-900">{currentLayer.name}</h1>
+            <h1 className="text-2xl font-bold text-white">{currentLayer.name}</h1>
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${STATUS_CLASSES[currentLayer.status]}`}>
               {STATUS_LABELS[currentLayer.status]}
             </span>
           </div>
           {floorNumber && (
-            <p className="text-sm text-gray-500 mt-1">Piso {floorNumber}</p>
+            <p className="text-sm text-gray-400 mt-1">Piso {floorNumber}</p>
           )}
         </div>
       </header>
@@ -71,12 +71,12 @@ export function UnitPage({ data }: UnitPageProps) {
           <div className="space-y-6">
             {/* Price */}
             {price != null && (
-              <div className="bg-white rounded-lg border border-gray-200 p-5">
-                <p className="text-3xl font-bold text-green-600">
+              <div className="glass-panel p-5">
+                <p className="text-3xl font-bold text-green-400">
                   ${price.toLocaleString()}
                 </p>
                 {area && (
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-400 mt-1">
                     ${Math.round(price / area)}/m²
                   </p>
                 )}
@@ -84,27 +84,27 @@ export function UnitPage({ data }: UnitPageProps) {
             )}
 
             {/* Details card */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
-              <h3 className="font-semibold text-gray-900">Detalles</h3>
+            <div className="glass-panel p-5 space-y-4">
+              <h3 className="font-semibold text-white">Detalles</h3>
 
               {unitType && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Tipo</span>
-                  <span className="text-sm font-medium text-gray-900">{unitType}</span>
+                  <span className="text-sm text-gray-400">Tipo</span>
+                  <span className="text-sm font-medium text-white">{unitType}</span>
                 </div>
               )}
 
               {area != null && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Superficie</span>
-                  <span className="text-sm font-medium text-gray-900">{area} m²</span>
+                  <span className="text-sm text-gray-400">Superficie</span>
+                  <span className="text-sm font-medium text-white">{area} m²</span>
                 </div>
               )}
 
               {(bedrooms != null || bathrooms != null) && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Ambientes</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm text-gray-400">Ambientes</span>
+                  <span className="text-sm font-medium text-white">
                     {bedrooms != null && `${bedrooms} dorm.`}
                     {bedrooms != null && bathrooms != null && ' / '}
                     {bathrooms != null && `${bathrooms} baño${bathrooms !== 1 ? 's' : ''}`}
@@ -114,8 +114,8 @@ export function UnitPage({ data }: UnitPageProps) {
 
               {(frontMeters || depthMeters) && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Dimensiones</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm text-gray-400">Dimensiones</span>
+                  <span className="text-sm font-medium text-white">
                     {frontMeters && `${frontMeters}m`}
                     {frontMeters && depthMeters && ' × '}
                     {depthMeters && `${depthMeters}m`}
@@ -125,31 +125,31 @@ export function UnitPage({ data }: UnitPageProps) {
 
               {orientation && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Orientación</span>
-                  <span className="text-sm font-medium text-gray-900">{orientation}</span>
+                  <span className="text-sm text-gray-400">Orientación</span>
+                  <span className="text-sm font-medium text-white">{orientation}</span>
                 </div>
               )}
             </div>
 
             {/* Features card */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5">
-              <h3 className="font-semibold text-gray-900 mb-3">Características</h3>
+            <div className="glass-panel p-5">
+              <h3 className="font-semibold text-white mb-3">Características</h3>
               <ul className="space-y-2">
                 {isCorner && project.type === 'subdivision' && (
-                  <li className="flex items-center text-sm">
-                    <span className="text-green-600 mr-2">✓</span>
+                  <li className="flex items-center text-sm text-gray-300">
+                    <span className="text-green-400 mr-2">✓</span>
                     Lote de esquina
                   </li>
                 )}
                 {hasBalcony && (
-                  <li className="flex items-center text-sm">
-                    <span className="text-green-600 mr-2">✓</span>
+                  <li className="flex items-center text-sm text-gray-300">
+                    <span className="text-green-400 mr-2">✓</span>
                     Balcón
                   </li>
                 )}
                 {features && features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center text-sm">
-                    <span className="text-green-600 mr-2">✓</span>
+                  <li key={idx} className="flex items-center text-sm text-gray-300">
+                    <span className="text-green-400 mr-2">✓</span>
                     {feature}
                   </li>
                 ))}
@@ -158,9 +158,9 @@ export function UnitPage({ data }: UnitPageProps) {
 
             {/* Description */}
             {description && (
-              <div className="bg-white rounded-lg border border-gray-200 p-5">
-                <h3 className="font-semibold text-gray-900 mb-2">Descripción</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">{description}</p>
+              <div className="glass-panel p-5">
+                <h3 className="font-semibold text-white mb-2">Descripción</h3>
+                <p className="text-sm text-gray-300 leading-relaxed">{description}</p>
               </div>
             )}
 
@@ -176,7 +176,7 @@ export function UnitPage({ data }: UnitPageProps) {
         {/* Sibling units */}
         {siblings.length > 1 && (
           <div className="mt-10">
-            <h3 className="font-semibold text-gray-900 mb-4">Otras unidades en este piso</h3>
+            <h3 className="font-semibold text-white mb-4">Otras unidades en este piso</h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {siblings.map((sibling) => {
                 const isCurrent = sibling.id === currentLayer.id;
@@ -187,18 +187,18 @@ export function UnitPage({ data }: UnitPageProps) {
                     key={sibling.id}
                     onClick={() => !isCurrent && navigateToSibling(sibling)}
                     disabled={isCurrent}
-                    className={`p-4 rounded-lg border text-left transition-colors ${
+                    className={`glass-panel p-4 text-left transition-all ${
                       isCurrent
-                        ? 'border-blue-300 bg-blue-50 cursor-default'
-                        : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                        ? 'border-blue-400 bg-blue-500/10 cursor-default'
+                        : 'hover:bg-white/10 hover:shadow-lg hover:shadow-blue-500/10'
                     }`}
                   >
-                    <div className="font-semibold text-gray-900">{sibling.name}</div>
+                    <div className="font-semibold text-white">{sibling.name}</div>
                     {siblingArea && (
-                      <div className="text-xs text-gray-500 mt-1">{siblingArea} m²</div>
+                      <div className="text-xs text-gray-400 mt-1">{siblingArea} m²</div>
                     )}
                     {siblingPrice && (
-                      <div className="text-sm font-medium text-green-600 mt-1">
+                      <div className="text-sm font-medium text-green-400 mt-1">
                         ${siblingPrice.toLocaleString()}
                       </div>
                     )}
@@ -214,11 +214,11 @@ export function UnitPage({ data }: UnitPageProps) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 px-4 py-3 mt-8">
+      <footer className="glass-panel rounded-none px-4 py-3 mt-8">
         <div className="max-w-5xl mx-auto">
           <button
             onClick={() => router.back()}
-            className={buttonStyles('secondary', 'sm')}
+            className={buttonStyles('ghost', 'sm')}
           >
             ← Volver al plano
           </button>
@@ -227,4 +227,3 @@ export function UnitPage({ data }: UnitPageProps) {
     </div>
   );
 }
-

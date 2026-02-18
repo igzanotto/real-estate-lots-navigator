@@ -42,9 +42,9 @@ export function ProjectHomePage({ data }: ProjectHomePageProps) {
   }, [firstFloor, data.project.slug, router]);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="relative h-screen">
       {/* View content */}
-      <div className="flex-1 overflow-hidden relative">
+      <div className="absolute inset-0">
         {currentView === 'exterior' && (
           <Spin360Viewer media={data.media} onEnterBuilding={enterBuilding} />
         )}
@@ -52,7 +52,7 @@ export function ProjectHomePage({ data }: ProjectHomePageProps) {
       </div>
 
       {/* Bottom navigation bar */}
-      <div className="bg-gray-900 border-t border-gray-700 px-4 py-3">
+      <div className="absolute bottom-4 inset-x-4 z-20 glass-panel px-4 py-3">
         <div className="max-w-7xl mx-auto flex justify-center gap-2">
           {hasExterior && (
             <button

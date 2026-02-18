@@ -15,12 +15,12 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950">
       <div className="text-center max-w-md">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <h2 className="text-2xl font-bold text-white mb-4">
           Algo salió mal
         </h2>
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-400 mb-8">
           Ocurrió un error inesperado. Por favor, intenta nuevamente.
         </p>
         <div className="flex gap-4 justify-center">

@@ -7,7 +7,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const user = await getAuthUser();
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 text-gray-900">
       <header className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm flex items-center justify-between">
         <span className="text-sm font-semibold text-gray-900">Admin</span>
         <div className="flex items-center gap-4">

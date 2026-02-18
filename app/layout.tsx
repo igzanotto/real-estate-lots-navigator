@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="antialiased bg-gray-50 font-sans">
+      <body className="antialiased bg-black text-white font-sans">
         <a href="#main-content" className="skip-nav">
           Saltar al contenido principal
         </a>
