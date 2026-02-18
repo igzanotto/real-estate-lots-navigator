@@ -100,8 +100,13 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
       const onFocus = () => {
         element.style.fill = colors.fill.replace('0.25', '0.45');
         element.style.strokeWidth = '4';
-        element.style.outline = '2px solid white';
-        element.style.outlineOffset = '2px';
+        // Only show outline for keyboard focus, not mouse clicks
+        requestAnimationFrame(() => {
+          if (element.matches(':focus-visible')) {
+            element.style.outline = '2px solid white';
+            element.style.outlineOffset = '2px';
+          }
+        });
       };
       const onBlur = () => {
         element.style.fill = colors.fill;
