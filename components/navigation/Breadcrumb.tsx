@@ -3,23 +3,39 @@ import { BreadcrumbItem } from '@/types/hierarchy.types';
 
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
+  variant?: 'dark' | 'light';
 }
 
-export function Breadcrumb({ items }: BreadcrumbProps) {
+const styles = {
+  dark: {
+    separator: 'text-gray-600',
+    link: 'text-gray-400 hover:text-white hover:underline',
+    current: 'text-gray-300 font-medium',
+  },
+  light: {
+    separator: 'text-gray-400',
+    link: 'text-gray-500 hover:text-gray-900 hover:underline',
+    current: 'text-gray-700 font-medium',
+  },
+};
+
+export function Breadcrumb({ items, variant = 'dark' }: BreadcrumbProps) {
+  const s = styles[variant];
+
   return (
     <nav className="flex items-center space-x-2 text-sm">
       {items.map((item, index) => (
         <div key={index} className="flex items-center">
-          {index > 0 && <span className="mx-2 text-gray-600">/</span>}
+          {index > 0 && <span className={`mx-2 ${s.separator}`}>/</span>}
           {item.href ? (
             <Link
               href={item.href}
-              className="text-gray-400 hover:text-white hover:underline"
+              className={s.link}
             >
               {item.label}
             </Link>
           ) : (
-            <span className="text-gray-300 font-medium">{item.label}</span>
+            <span className={s.current}>{item.label}</span>
           )}
         </div>
       ))}

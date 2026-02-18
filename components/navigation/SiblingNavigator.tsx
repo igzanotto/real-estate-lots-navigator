@@ -29,7 +29,7 @@ export function SiblingNavigator({ siblings, currentLayerId, label, onSelect }: 
   }, [currentLayerId]);
 
   return (
-    <aside className="w-28 bg-gray-900 border-l border-gray-700 flex flex-col">
+    <aside className="hidden lg:flex w-28 bg-gray-900 border-l border-gray-700 flex-col">
       <div className="px-3 py-3 border-b border-gray-700">
         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
           {label}es

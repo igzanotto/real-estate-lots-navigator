@@ -14,7 +14,7 @@ export default async function HomePage() {
   // Multiple projects: show a listing
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 p-6 shadow-sm">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900">Explorador Inmobiliario</h1>
           <p className="text-gray-600 mt-2">Selecciona un proyecto para explorar</p>
