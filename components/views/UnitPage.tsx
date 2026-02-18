@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ExplorerPageData, Layer, Media } from '@/types/hierarchy.types';
 import { Breadcrumb } from '@/components/navigation/Breadcrumb';
 import { STATUS_LABELS, STATUS_CLASSES } from '@/lib/constants/status';
+import { buttonStyles } from '@/lib/styles/button';
 
 interface UnitPageProps {
   data: ExplorerPageData;
@@ -164,7 +165,7 @@ export function UnitPage({ data }: UnitPageProps) {
 
             {/* CTA */}
             {currentLayer.status === 'available' && (
-              <button className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+              <button className={`${buttonStyles('primary')} w-full`}>
                 Consultar Disponibilidad
               </button>
             )}
@@ -216,7 +217,7 @@ export function UnitPage({ data }: UnitPageProps) {
         <div className="max-w-5xl mx-auto">
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors text-sm text-gray-600"
+            className={buttonStyles('secondary', 'sm')}
           >
             ← Volver al plano
           </button>
@@ -325,12 +326,14 @@ function Gallery({ media, unitName }: { media: Media[]; unitName: string }) {
             <button
               onClick={() => setSelectedIndex((i) => (i > 0 ? i - 1 : media.length - 1))}
               className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow transition-colors"
+              aria-label="Imagen anterior"
             >
               ←
             </button>
             <button
               onClick={() => setSelectedIndex((i) => (i < media.length - 1 ? i + 1 : 0))}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow transition-colors"
+              aria-label="Imagen siguiente"
             >
               →
             </button>

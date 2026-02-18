@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { buttonStyles } from '@/lib/styles/button';
 
 export default function NotFound() {
   return (
@@ -13,7 +14,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className={buttonStyles('primary')}
         >
           Volver al Mapa Principal
         </Link>

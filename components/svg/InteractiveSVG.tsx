@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { EntityStatus } from '@/types/hierarchy.types';
-import { STATUS_COLORS } from '@/lib/constants/status';
+import { STATUS_COLORS, STATUS_LABELS } from '@/lib/constants/status';
 
 export interface SVGEntityConfig {
   id: string;
@@ -82,6 +82,12 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
       element.style.fill = colors.fill;
       element.style.stroke = colors.stroke;
 
+      // Keyboard accessibility
+      element.setAttribute('tabindex', '0');
+      element.setAttribute('role', 'button');
+      element.setAttribute('aria-label', `${entity.label} — ${STATUS_LABELS[entity.status]}`);
+      element.style.outline = 'none';
+
       const onEnter = () => {
         element.style.fill = colors.fill.replace('0.15', '0.35');
         element.style.strokeWidth = '4';
@@ -94,15 +100,40 @@ export function InteractiveSVG({ svgUrl, entities, backgroundUrl }: InteractiveS
         e.stopPropagation();
         entity.onClick();
       };
+      const onFocus = () => {
+        element.style.fill = colors.fill.replace('0.15', '0.35');
+        element.style.strokeWidth = '4';
+        element.style.outline = '2px solid white';
+        element.style.outlineOffset = '2px';
+      };
+      const onBlur = () => {
+        element.style.fill = colors.fill;
+        element.style.strokeWidth = '2';
+        element.style.outline = 'none';
+      };
+      const onKeyDown = (e: Event) => {
+        const key = (e as KeyboardEvent).key;
+        if (key === 'Enter' || key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          entity.onClick();
+        }
+      };
 
       element.addEventListener('mouseenter', onEnter);
       element.addEventListener('mouseleave', onLeave);
       element.addEventListener('click', onClick);
+      element.addEventListener('focus', onFocus);
+      element.addEventListener('blur', onBlur);
+      element.addEventListener('keydown', onKeyDown);
 
       listeners.push(
         { element, event: 'mouseenter', handler: onEnter },
         { element, event: 'mouseleave', handler: onLeave },
         { element, event: 'click', handler: onClick },
+        { element, event: 'focus', handler: onFocus },
+        { element, event: 'blur', handler: onBlur },
+        { element, event: 'keydown', handler: onKeyDown },
       );
 
       // Add label

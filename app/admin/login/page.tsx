@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { buttonStyles } from '@/lib/styles/button';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -74,7 +75,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-md transition-colors"
+              className={`${buttonStyles('primary')} w-full disabled:bg-blue-400`}
             >
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getProjects } from '@/lib/data/repository';
+import { STATUS_CLASSES, STATUS_LABELS } from '@/lib/constants/status';
 
 export default async function HomePage() {
   const projects = await getProjects();
@@ -32,12 +33,8 @@ export default async function HomePage() {
                 <span className="text-sm px-2 py-1 rounded bg-blue-100 text-blue-700 font-medium">
                   {project.type === 'subdivision' ? 'Loteo' : 'Edificio'}
                 </span>
-                <span className={`text-sm px-2 py-1 rounded font-medium ${
-                  project.status === 'available'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-100 text-gray-700'
-                }`}>
-                  {project.status === 'available' ? 'Disponible' : project.status}
+                <span className={`text-sm px-2 py-1 rounded-full font-medium ${STATUS_CLASSES[project.status]}`}>
+                  {STATUS_LABELS[project.status]}
                 </span>
               </div>
               <h2 className="text-xl font-bold text-gray-900">{project.name}</h2>

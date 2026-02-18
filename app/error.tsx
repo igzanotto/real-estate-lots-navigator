@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { buttonStyles } from '@/lib/styles/button';
 
 export default function Error({
   error,
@@ -25,13 +26,13 @@ export default function Error({
         <div className="flex gap-4 justify-center">
           <button
             onClick={reset}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className={buttonStyles('primary')}
           >
             Intentar nuevamente
           </button>
           <button
             onClick={() => window.location.href = '/'}
-            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            className={buttonStyles('secondary')}
           >
             Volver al inicio
           </button>

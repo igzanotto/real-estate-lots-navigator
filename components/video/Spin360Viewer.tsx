@@ -209,6 +209,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
               <button
                 onClick={() => navigateTo(VIEWPOINT_ORDER[prevIdx])}
                 className="w-10 h-10 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white transition-colors"
+                aria-label="Vista anterior"
               >
                 ←
               </button>
@@ -230,6 +231,7 @@ export function Spin360Viewer({ media, onEnterBuilding }: Spin360ViewerProps) {
               <button
                 onClick={() => navigateTo(VIEWPOINT_ORDER[nextIdx])}
                 className="w-10 h-10 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white transition-colors"
+                aria-label="Vista siguiente"
               >
                 →
               </button>

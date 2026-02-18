@@ -8,6 +8,7 @@ import { Breadcrumb } from '@/components/navigation/Breadcrumb';
 import { SiblingNavigator } from '@/components/navigation/SiblingNavigator';
 import { svgElementId } from '@/lib/utils/slug-helpers';
 import { STATUS_LABELS, STATUS_DOT_CLASSES } from '@/lib/constants/status';
+import { buttonStyles } from '@/lib/styles/button';
 
 interface ExplorerViewProps {
   data: ExplorerPageData;
@@ -112,7 +113,7 @@ export function ExplorerView({ data }: ExplorerViewProps) {
           {currentLayer ? (
             <button
               onClick={() => router.back()}
-              className="px-4 py-1.5 text-sm text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              className={buttonStyles('ghost', 'sm')}
             >
               ← Volver
             </button>
