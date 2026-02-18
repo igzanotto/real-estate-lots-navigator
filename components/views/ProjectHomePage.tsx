@@ -32,19 +32,19 @@ export function ProjectHomePage({ data }: ProjectHomePageProps) {
     [data.project.settings]
   );
 
-  // Find first residential floor to navigate into
-  const firstFloor = useMemo(() => {
+  // Find last residential floor (top floor) to navigate into
+  const targetFloor = useMemo(() => {
     const residential = data.children
       .filter((c) => c.svgPath != null)
       .sort((a, b) => a.sortOrder - b.sortOrder);
-    return residential[0] ?? data.children[0];
+    return residential[residential.length - 1] ?? data.children[data.children.length - 1];
   }, [data.children]);
 
   const enterBuilding = useCallback(() => {
-    if (firstFloor) {
-      router.push(`/p/${data.project.slug}/${firstFloor.slug}`);
+    if (targetFloor) {
+      router.push(`/p/${data.project.slug}/${targetFloor.slug}`);
     }
-  }, [firstFloor, data.project.slug, router]);
+  }, [targetFloor, data.project.slug, router]);
 
   return (
     <div className="relative h-screen">

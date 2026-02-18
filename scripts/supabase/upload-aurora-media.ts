@@ -257,15 +257,16 @@ async function run() {
     })) count++;
   }
 
-  // Aerial videos
+  // Aerial videos (also serve as entrance transitions)
   const aerialVideos = ['aurora-01-top.mp4', 'aurora-02-top.mp4', 'aurora-03-top.mp4'];
+  const aerialViewpoints = ['home', 'point-a', 'point-b'];
   for (let i = 0; i < aerialVideos.length; i++) {
     if (await uploadAndCreateMedia({
       projectId: project.id, layerId: null,
       localPath: `videos/${aerialVideos[i]}`,
       storagePath: `aurora/videos/${aerialVideos[i]}`,
       type: 'video', purpose: 'gallery', title: `Vuelo aéreo ${i + 1}`, sortOrder: 10 + i,
-      metadata: { category: 'aerial' },
+      metadata: { category: 'aerial', entrance_from_viewpoint: aerialViewpoints[i] },
     })) count++;
   }
 

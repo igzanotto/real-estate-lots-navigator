@@ -19,6 +19,7 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360Viewe
   const [phase, setPhase] = useState<'idle' | 'transitioning'>('idle');
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [transitionVideoUrl, setTransitionVideoUrl] = useState<string | null>(null);
+  const [entranceVideoUrl, setEntranceVideoUrl] = useState<string | null>(null);
   const onVideoEndRef = useRef<(() => void) | null>(null);
   const svgContainerRef = useRef<HTMLDivElement>(null);
 
@@ -58,6 +59,28 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360Viewe
     },
     [media]
   );
+
+  // Find entrance video for current viewpoint
+  const findEntranceVideo = useCallback(
+    (viewpoint: ViewpointId): Media | undefined => {
+      return media.find((m) => {
+        if (m.type !== 'video') return false;
+        const meta = m.metadata as Record<string, unknown>;
+        return meta?.entrance_from_viewpoint === viewpoint;
+      });
+    },
+    [media]
+  );
+
+  // Intercept enter building to play entrance video first
+  const handleEnterBuilding = useCallback(() => {
+    const video = findEntranceVideo(currentViewpoint);
+    if (video?.url) {
+      setEntranceVideoUrl(video.url);
+    } else {
+      onEnterBuilding?.();
+    }
+  }, [currentViewpoint, findEntranceVideo, onEnterBuilding]);
 
   // Load and inject SVG overlay for current viewpoint
   useEffect(() => {
@@ -119,7 +142,7 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360Viewe
           });
           marker.addEventListener('click', (e) => {
             e.stopPropagation();
-            onEnterBuilding?.();
+            handleEnterBuilding();
           });
 
           // Add pulsing animation
@@ -139,7 +162,7 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360Viewe
       cancelled = true;
       container.innerHTML = '';
     };
-  }, [currentViewpoint, phase, onEnterBuilding, spinSvgs]);
+  }, [currentViewpoint, phase, handleEnterBuilding, spinSvgs]);
 
   const navigateTo = useCallback(
     (target: ViewpointId) => {
@@ -204,7 +227,7 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360Viewe
       )}
 
       {/* SVG overlay + controls — visible when idle or video hasn't started */}
-      {showOverlay && (
+      {showOverlay && !entranceVideoUrl && (
         <>
           {/* SVG overlay (building outline + clickable marker) */}
           <div
@@ -216,7 +239,7 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360Viewe
           {onEnterBuilding && (
             <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20">
               <button
-                onClick={onEnterBuilding}
+                onClick={handleEnterBuilding}
                 className="bg-black/60 backdrop-blur-md border border-white/10 px-5 py-2.5 rounded-full text-sm font-medium text-white shadow-lg hover:bg-white/20 transition-colors"
               >
                 Explorar niveles
@@ -244,6 +267,20 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding }: Spin360Viewe
             </div>
           </div>
         </>
+      )}
+
+      {/* Fullscreen entrance video — plays before navigating into the building */}
+      {entranceVideoUrl && (
+        <div className="absolute inset-0 z-50 bg-black">
+          <VideoPlayer
+            src={entranceVideoUrl}
+            autoPlay
+            muted
+            controls={false}
+            onEnded={() => onEnterBuilding?.()}
+            className="w-full h-full"
+          />
+        </div>
       )}
     </div>
   );
