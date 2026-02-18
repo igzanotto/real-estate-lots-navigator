@@ -4,6 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Explorador Inmobiliario",
   description: "Explora proyectos inmobiliarios: loteos, edificios y más",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://localhost:3000"),
 };
 
 export default function RootLayout({
