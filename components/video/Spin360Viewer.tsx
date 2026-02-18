@@ -22,6 +22,7 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding, preloadOnEntra
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [transitionVideoUrl, setTransitionVideoUrl] = useState<string | null>(null);
   const [entranceVideoUrl, setEntranceVideoUrl] = useState<string | null>(null);
+  const [entranceVideoPlaying, setEntranceVideoPlaying] = useState(false);
   const onVideoEndRef = useRef<(() => void) | null>(null);
   const svgContainerRef = useRef<HTMLDivElement>(null);
 
@@ -238,7 +239,7 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding, preloadOnEntra
       )}
 
       {/* SVG overlay + controls — visible when idle or video hasn't started */}
-      {showOverlay && !entranceVideoUrl && (
+      {showOverlay && !entranceVideoPlaying && (
         <>
           {/* SVG overlay (building outline + clickable marker) */}
           <div
@@ -280,14 +281,16 @@ export function Spin360Viewer({ media, spinSvgs, onEnterBuilding, preloadOnEntra
         </>
       )}
 
-      {/* Fullscreen entrance video — plays before navigating into the building */}
+      {/* Entrance video — starts behind images (z-1), promoted above
+          everything (z-50) once the first frame is playing */}
       {entranceVideoUrl && (
-        <div className="absolute inset-0 z-50 bg-black">
+        <div className="absolute inset-0" style={{ zIndex: entranceVideoPlaying ? 50 : 1 }}>
           <VideoPlayer
             src={entranceVideoUrl}
             autoPlay
             muted
             controls={false}
+            onPlaying={() => setEntranceVideoPlaying(true)}
             onEnded={() => onEnterBuilding?.()}
             className="w-full h-full"
           />
